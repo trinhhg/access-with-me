@@ -1,0 +1,15 @@
+{
+  "name": "My Secure Vault",
+  "short_name": "Vault",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#175DDC",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2889/2889676.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
