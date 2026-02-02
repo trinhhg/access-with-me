@@ -1,45 +1,19 @@
-const CACHE_NAME = 'vault-pwa-v6';
-const ASSETS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
-];
-
-// 1. Install & Cache
-self.addEventListener('install', (event) => {
-    self.skipWaiting(); // Kích hoạt ngay, không chờ
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
-    );
-});
-
-// 2. Activate & Cleanup Old Cache
-self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) => Promise.all(
-            keys.map((key) => {
-                if (key !== CACHE_NAME) return caches.delete(key);
-            })
-        ))
-    );
-    self.clients.claim();
-});
-
-// 3. Fetch (Offline First Strategy)
-self.addEventListener('fetch', (event) => {
-    // Với Logo bên ngoài, ưu tiên mạng, lỗi thì dùng ảnh mặc định trong cache (nếu có) hoặc bỏ qua
-    if (event.request.url.includes('google.com/s2/favicons') || event.request.url.includes('flaticon')) {
-        event.respondWith(
-            fetch(event.request).catch(() => caches.match(event.request))
-        );
-        return;
+{
+  "name": "Password Vault",
+  "short_name": "Vault",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2f4f8",
+  "theme_color": "#175DDC",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Bitwarden-logo.svg/512px-Bitwarden-logo.svg.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-
-    // Với App Shell, luôn ưu tiên Cache để load nhanh như App Native
-    event.respondWith(
-        caches.match(event.request).then((cached) => {
-            return cached || fetch(event.request);
-        })
-    );
-});
+  ]
+}
