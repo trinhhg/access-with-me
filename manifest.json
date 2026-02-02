@@ -1,13 +1,19 @@
 {
-  "name": "My Secure Vault",
+  "name": "Kho Bảo Mật",
   "short_name": "Vault",
-  "start_url": "index.html",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#f8f9fa",
+  "background_color": "#F8F9FA",
   "theme_color": "#175DDC",
+  "orientation": "portrait",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/2889/2889676.png",
+      "src": "https://bitwarden.com/images/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://bitwarden.com/images/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
