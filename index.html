@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Vault</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#175DDC">
+    <style>
+        :root { --bw-blue: #175DDC; --bg: #f8f9fa; --text: #333; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-top: 70px; }
+        /* Header */
+        .header { background: var(--bw-blue); color: white; padding: 15px; position: fixed; top: 0; width: 100%; z-index: 100; box-sizing: border-box; display: flex; align-items: center; }
+        .search-input { width: 100%; padding: 10px 15px; border-radius: 4px; border: none; font-size: 16px; outline: none; }
+        /* Content */
+        .container { padding: 10px; }
+        .item-card { background: white; border-bottom: 1px solid #ddd; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .item-info b { font-size: 16px; display: block; }
+        .item-info span { font-size: 13px; color: #666; }
+        .copy-btn { background: #eee; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: var(--bw-blue); font-weight: bold; }
+        .no-result { text-align: center; color: #999; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <input type="text" id="search" class="search-input" placeholder="Tìm kiếm trong kho dữ liệu..." oninput="render()">
+    </div>
+
+    <div class="container" id="list"></div>
+
+    <script>
+        // DỮ LIỆU CỦA BẠN (Nên mã hóa nếu cần)
+        const vault = [
+            { id: 1, name: "Facebook", user: "user@gmail.com", pass: "Pass123" },
+            { id: 2, name: "Gmail", user: "student@edu.vn", pass: "HSK6_2026" },
+            { id: 3, name: "iQOO Neo 10", user: "admin", pass: "VânTaySiêuÂm" }
+        ];
+
+        function render() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            
+            const filtered = vault.filter(i => i.name.toLowerCase().includes(query) || i.user.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="no-result">Không tìm thấy tài khoản nào</div>';
+                return;
+            }
+
+            filtered.forEach(item => {
+                list.innerHTML += `
+                    <div class="item-card">
+                        <div class="item-info">
+                            <b>${item.name}</b>
+                            <span>${item.user}</span>
+                        </div>
+                        <button class="copy-btn" onclick="copy('${item.pass}')">COPY</button>
+                    </div>`;
+            });
+        }
+
+        function copy(text) {
+            navigator.clipboard.writeText(text);
+            alert("Đã sao chép mật khẩu!");
+        }
+
+        // Đăng ký Service Worker để chạy Offline
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+
+        render();
+    </script>
+</body>
+</html>
