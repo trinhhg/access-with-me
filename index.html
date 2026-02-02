@@ -4,36 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>My Vault</title>
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#175DDC">
+    <link rel="icon" type="image/png" href="https://bitwarden.com/images/icon-32x32.png">
     <style>
-        :root { --bw-blue: #175DDC; --bg: #f8f9fa; --text: #333; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding-top: 70px; }
-        /* Header */
-        .header { background: var(--bw-blue); color: white; padding: 15px; position: fixed; top: 0; width: 100%; z-index: 100; box-sizing: border-box; display: flex; align-items: center; }
-        .search-input { width: 100%; padding: 10px 15px; border-radius: 4px; border: none; font-size: 16px; outline: none; }
-        /* Content */
-        .container { padding: 10px; }
-        .item-card { background: white; border-bottom: 1px solid #ddd; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .item-info b { font-size: 16px; display: block; }
-        .item-info span { font-size: 13px; color: #666; }
-        .copy-btn { background: #eee; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; color: var(--bw-blue); font-weight: bold; }
-        .no-result { text-align: center; color: #999; margin-top: 50px; }
+        :root {
+            --bw-blue: #175DDC;
+            --bw-light-blue: #E7F0FF;
+            --bg: #F8F9FA;
+            --text: #333;
+            --gray: #666;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding-top: 130px; /* Padding lớn hơn cho header mới */
+            color: var(--text);
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Header phong cách Bitwarden */
+        .header {
+            background: var(--bw-blue);
+            color: white;
+            padding: 15px 15px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 100;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .logo {
+            width: 28px;
+            height: 28px;
+            margin-right: 10px;
+        }
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px; /* Bo tròn thanh tìm kiếm */
+            border: none;
+            font-size: 16px;
+            outline: none;
+            background: white;
+            color: var(--text);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        /* Nội dung chính */
+        .container {
+            padding: 15px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 10px; /* Bo tròn thẻ */
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+        .item-card:active {
+            transform: scale(0.99);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .app-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            margin-right: 15px;
+            object-fit: cover;
+            border: 1px solid #eee;
+        }
+        .app-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .field-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-top: 1px solid #f4f4f4;
+        }
+        .field-label {
+            font-size: 14px;
+            color: var(--gray);
+            font-weight: 500;
+        }
+        .field-value-container {
+             display: flex;
+             align-items: center;
+             background: var(--bw-light-blue);
+             padding: 6px 10px;
+             border-radius: 6px;
+             max-width: 65%;
+        }
+        .field-value {
+            font-size: 15px;
+            font-family: monospace;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 8px;
+        }
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--bw-blue);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .copy-btn:active {
+            background: #d0e1fd;
+        }
+        .website-link {
+            color: var(--bw-blue);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .no-result {
+            text-align: center;
+            color: var(--gray);
+            margin-top: 60px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="header">
-        <input type="text" id="search" class="search-input" placeholder="Tìm kiếm trong kho dữ liệu..." oninput="render()">
+        <div class="logo-container">
+            <img src="https://bitwarden.com/images/icon-192x192.png" alt="Logo" class="logo">
+            <span class="logo-text">Kho Bảo Mật</span>
+        </div>
+        <input type="text" id="search" class="search-input" placeholder="Tìm kiếm tài khoản..." oninput="render()">
     </div>
 
     <div class="container" id="list"></div>
 
     <script>
-        // DỮ LIỆU CỦA BẠN (Nên mã hóa nếu cần)
+        // DỮ LIỆU ĐẦY ĐỦ CÁC TRƯỜNG NHƯ BITWARDEN
         const vault = [
-            { id: 1, name: "Facebook", user: "user@gmail.com", pass: "Pass123" },
-            { id: 2, name: "Gmail", user: "student@edu.vn", pass: "HSK6_2026" },
-            { id: 3, name: "iQOO Neo 10", user: "admin", pass: "VânTaySiêuÂm" }
+            {
+                id: 1,
+                name: "Facebook",
+                user: "my.email@gmail.com",
+                pass: "StrongPass#123",
+                website: "https://facebook.com",
+                // Dùng icon từ nguồn bên ngoài cho đẹp
+                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/1024px-2021_Facebook_icon.svg.png"
+            },
+            {
+                id: 2,
+                name: "Google",
+                user: "student.hsk@gmail.com",
+                pass: "HSK6_Target2026!",
+                website: "https://google.com",
+                icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png"
+            },
+            {
+                id: 3,
+                name: "iQOO Account",
+                user: "neo10_pro_vn",
+                pass: "FingerprintUnlock@99",
+                website: "https://www.iqoo.com/vn",
+                icon: "https://seeklogo.com/images/I/iqoo-logo-5F37043991-seeklogo.com.png"
+            }
         ];
 
         function render() {
@@ -41,33 +194,87 @@
             const list = document.getElementById('list');
             list.innerHTML = '';
             
-            const filtered = vault.filter(i => i.name.toLowerCase().includes(query) || i.user.toLowerCase().includes(query));
+            // Lọc theo tên app, username hoặc website
+            const filtered = vault.filter(i => 
+                i.name.toLowerCase().includes(query) || 
+                i.user.toLowerCase().includes(query) ||
+                i.website.toLowerCase().includes(query)
+            );
 
             if (filtered.length === 0) {
-                list.innerHTML = '<div class="no-result">Không tìm thấy tài khoản nào</div>';
+                list.innerHTML = '<div class="no-result">Không tìm thấy kết quả nào</div>';
                 return;
             }
 
             filtered.forEach(item => {
+                // Lấy domain rút gọn cho đẹp
+                let domain = "";
+                try { domain = new URL(item.website).hostname.replace('www.', ''); } catch(e) { domain = item.website; }
+
                 list.innerHTML += `
                     <div class="item-card">
-                        <div class="item-info">
-                            <b>${item.name}</b>
-                            <span>${item.user}</span>
+                        <div class="card-header">
+                            <img src="${item.icon}" alt="${item.name}" class="app-icon" onerror="this.src='https://bitwarden.com/images/icon-192x192.png'">
+                            <span class="app-name">${item.name}</span>
                         </div>
-                        <button class="copy-btn" onclick="copy('${item.pass}')">COPY</button>
+                        
+                        <div class="field-row">
+                            <span class="field-label">Tên đăng nhập</span>
+                            <div class="field-value-container">
+                                <span class="field-value">${item.user}</span>
+                            </div>
+                            <button class="copy-btn" onclick="copy('${item.user}')">COPY</button>
+                        </div>
+                        
+                        <div class="field-row">
+                            <span class="field-label">Mật khẩu</span>
+                            <div class="field-value-container">
+                                <span class="field-value" style="letter-spacing: 2px;">••••••••</span>
+                            </div>
+                            <button class="copy-btn" onclick="copy('${item.pass}')">COPY</button>
+                        </div>
+                        
+                        <div class="field-row" style="border-bottom: none;">
+                            <span class="field-label">Website</span>
+                            <a href="${item.website}" target="_blank" class="website-link">${domain}</a>
+                            <button class="copy-btn" onclick="copy('${item.website}')">Link</button>
+                        </div>
                     </div>`;
             });
         }
 
         function copy(text) {
-            navigator.clipboard.writeText(text);
-            alert("Đã sao chép mật khẩu!");
+            navigator.clipboard.writeText(text).then(() => {
+                // Rung nhẹ để phản hồi (nếu thiết bị hỗ trợ)
+                if (navigator.vibrate) navigator.vibrate(40);
+                
+                // Hiển thị thông báo toast đơn giản
+                const toast = document.createElement('div');
+                toast.innerText = 'Đã sao chép!';
+                toast.style.position = 'fixed';
+                toast.style.bottom = '30px';
+                toast.style.left = '50%';
+                toast.style.transform = 'translateX(-50%)';
+                toast.style.background = 'rgba(0,0,0,0.7)';
+                toast.style.color = 'white';
+                toast.style.padding = '10px 20px';
+                toast.style.borderRadius = '20px';
+                toast.style.zIndex = '1000';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 1500);
+
+            }, () => {
+                alert("Lỗi: Không thể sao chép. Vui lòng thử lại.");
+            });
         }
 
-        // Đăng ký Service Worker để chạy Offline
+        // Đăng ký Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(reg => console.log('Service Worker Registered'))
+                    .catch(err => console.log('Service Worker Error', err));
+            });
         }
 
         render();
