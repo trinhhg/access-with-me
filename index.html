@@ -8,61 +8,61 @@
     <meta name="theme-color" content="#175DDC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #175DDC; --bg: #f2f4f8; --text: #333; --danger: #e74c3c; --success: #27ae60; }
+        :root { --primary: #175DDC; --bg: #f2f4f8; --text: #333; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 80px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* HEADER APP STYLE */
-        .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .search-container { position: relative; width: 100%; }
+        /* HEADER */
+        .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; }
+        .search-container { position: relative; flex: 1; }
         .search-box { width: 100%; padding: 12px 15px 12px 45px; border-radius: 25px; border: none; font-size: 16px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
         .search-box::placeholder { color: rgba(255,255,255,0.7); }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
+        .settings-btn { color: white; font-size: 20px; padding: 10px; cursor: pointer; }
+
+        /* INSTALL PROMPT */
+        #installBtn { display: none; background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-bottom: 15px; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
 
         /* LIST CARD */
         .container { padding: 10px 15px; }
-        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid #fff; transition: transform 0.1s; }
-        .card:active { transform: scale(0.98); }
-        
-        /* Header Card: Logo + Name + Actions */
+        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid #fff; }
         .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
         .card-brand { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
         .brand-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; background: #fff; }
         .brand-name { font-weight: 700; font-size: 17px; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        /* Action Buttons (Edit/Delete) */
         .card-actions { display: flex; gap: 15px; }
         .icon-btn { color: #95a5a6; font-size: 18px; cursor: pointer; padding: 5px; }
-        .icon-btn.edit:hover { color: var(--primary); }
         .icon-btn.del { color: #ff6b6b; }
 
-        /* Data Rows */
         .data-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: #f8f9fa; padding: 8px 12px; border-radius: 8px; }
         .data-content { flex: 1; overflow: hidden; margin-right: 10px; }
         .data-label { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 2px; }
-        .data-value { font-size: 14px; font-family: 'Courier New', monospace; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 600; }
+        .data-value { font-size: 14px; font-family: 'Courier New', monospace; color: #333; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
         
-        /* Copy Button */
-        .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 6px; min-width: 60px; text-align: center; transition: all 0.2s; cursor: pointer; }
-        .copy-btn.copied { background: var(--success); color: white; border-color: var(--success); }
+        .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 6px; min-width: 60px; transition: all 0.2s; }
+        .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
 
-        /* Link Row */
+        /* NOTE ROW */
+        .note-row { background: #fff8e1; border: 1px solid #ffe0b2; padding: 10px; border-radius: 8px; font-size: 14px; color: #d35400; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; }
+        .note-icon { margin-top: 2px; }
+
         .link-row { margin-top: 5px; text-align: right; }
-        .website-link { font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 5px; padding: 5px 0; }
+        .website-link { font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 500; }
         
-        /* FAB Add Button */
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
 
-        /* MODAL */
+        /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-        .modal-content { background: white; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.2s; }
+        .modal-content { background: white; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.2s; max-height: 90vh; overflow-y: auto; }
         .inp-group { margin-bottom: 15px; }
         .inp-group label { font-size: 13px; color: #666; font-weight: 600; margin-bottom: 5px; display: block; }
         .inp { width: 100%; padding: 12px; border: 1px solid #eee; background: #f9f9f9; border-radius: 10px; font-size: 16px; outline: none; box-sizing: border-box; }
-        .inp:focus { border-color: var(--primary); background: white; }
+        textarea.inp { resize: none; height: 80px; font-family: inherit; }
+        
         .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; }
+        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; flex: 1; cursor: pointer; }
         .btn-close { background: #f0f0f0; color: #555; }
         .btn-save { background: var(--primary); color: white; }
+        .btn-full { width: 100%; margin-bottom: 10px; }
 
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
@@ -72,11 +72,15 @@
     <div class="header">
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search" class="search-box" placeholder="Tìm kiếm tài khoản..." oninput="render()">
+            <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
         </div>
+        <i class="fas fa-cog settings-btn" onclick="openSettings()"></i>
     </div>
 
-    <div class="container" id="list"></div>
+    <div class="container">
+        <button id="installBtn" onclick="installPWA()"><i class="fas fa-download"></i> CÀI ĐẶT APP NGAY</button>
+        <div id="list"></div>
+    </div>
 
     <div class="fab" onclick="openModal()"><i class="fas fa-plus"></i></div>
 
@@ -86,12 +90,12 @@
             <input type="hidden" id="editId">
             
             <div class="inp-group">
-                <label>Website (Để tự lấy Logo)</label>
-                <input type="text" id="inpWeb" class="inp" placeholder="Ví dụ: facebook.com" onblur="autoFillName()">
+                <label>Website (Tự lấy Logo)</label>
+                <input type="text" id="inpWeb" class="inp" placeholder="facebook.com" onblur="autoFillName()">
             </div>
             <div class="inp-group">
                 <label>Tên gợi nhớ</label>
-                <input type="text" id="inpName" class="inp" placeholder="Facebook">
+                <input type="text" id="inpName" class="inp">
             </div>
             <div class="inp-group">
                 <label>Tên đăng nhập</label>
@@ -101,28 +105,96 @@
                 <label>Mật khẩu</label>
                 <input type="text" id="inpPass" class="inp">
             </div>
+            <div class="inp-group">
+                <label>Ghi chú (Tùy chọn)</label>
+                <textarea id="inpNote" class="inp" placeholder="Mã khôi phục, câu hỏi bảo mật..."></textarea>
+            </div>
 
             <div class="btn-row">
-                <button class="btn btn-close" onclick="closeModal()">Hủy</button>
+                <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
                 <button class="btn btn-save" onclick="saveData()">Lưu</button>
             </div>
         </div>
     </div>
 
-    <script>
-        let vault = JSON.parse(localStorage.getItem('vault_v4')) || [
-            { id: 1, name: "Google", user: "example@gmail.com", pass: "Pass123", web: "https://google.com" },
-            { id: 2, name: "Facebook", user: "user.fb", pass: "Fb@2026", web: "https://facebook.com" }
-        ];
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2 style="margin-top:0; color:var(--primary)">Cài đặt & Backup</h2>
+            <p style="font-size:14px; color:#666">Dùng tính năng này để chuyển dữ liệu sang máy mới.</p>
+            
+            <button class="btn btn-save btn-full" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất dữ liệu (Backup)</button>
+            <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Nhập dữ liệu (Restore)</button>
+            <input type="file" id="fileInput" style="display:none" onchange="importData(this)">
+            
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px">
+                <button class="btn btn-close" onclick="closeModal('settingsModal')" style="width:100%">Đóng</button>
+            </div>
+        </div>
+    </div>
 
-        // LOGIC LẤY LOGO
+    <script>
+        let vault = JSON.parse(localStorage.getItem('vault_v5')) || [];
+        let deferredPrompt; // Biến để lưu sự kiện cài đặt PWA
+
+        // 1. PWA INSTALL LOGIC
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Hiện nút cài đặt
+            document.getElementById('installBtn').style.display = 'block';
+        });
+
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    document.getElementById('installBtn').style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        }
+
+        // 2. BACKUP & RESTORE LOGIC
+        function exportData() {
+            const dataStr = JSON.stringify(vault, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        if(confirm(`Tìm thấy ${data.length} tài khoản. Bạn có muốn ghi đè lên dữ liệu hiện tại không?`)) {
+                            vault = data;
+                            saveVault();
+                            alert("Nhập dữ liệu thành công!");
+                            closeModal('settingsModal');
+                        }
+                    } else { alert("File không hợp lệ!"); }
+                } catch (err) { alert("Lỗi đọc file: " + err); }
+            };
+            reader.readAsText(file);
+        }
+
+        // 3. CORE FUNCTIONS
         function getFavicon(url) {
             if (!url) return 'https://cdn-icons-png.flaticon.com/512/2889/2889676.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
             return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
         }
 
-        // TỰ ĐIỀN TÊN KHI NHẬP WEB
         function autoFillName() {
             const web = document.getElementById('inpWeb').value;
             const name = document.getElementById('inpName');
@@ -137,10 +209,15 @@
             const list = document.getElementById('list');
             list.innerHTML = '';
 
-            vault.filter(i => i.name.toLowerCase().includes(q) || i.web.toLowerCase().includes(q)).forEach(item => {
-                // Xử lý link web
-                let fullLink = item.web.startsWith('http') ? item.web : 'https://' + item.web;
+            vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q)).forEach(item => {
+                let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
                 
+                // LOGIC HIỂN THỊ GHI CHÚ: Có nội dung mới hiện
+                let noteHtml = '';
+                if (item.note && item.note.trim() !== "") {
+                    noteHtml = `<div class="note-row"><i class="fas fa-sticky-note note-icon"></i> <span>${item.note}</span></div>`;
+                }
+
                 list.innerHTML += `
                     <div class="card">
                         <div class="card-top">
@@ -149,7 +226,7 @@
                                 <span class="brand-name">${item.name}</span>
                             </div>
                             <div class="card-actions">
-                                <i class="fas fa-pen icon-btn edit" onclick="openModal(${item.id})"></i>
+                                <i class="fas fa-pen icon-btn" onclick="openModal(${item.id})"></i>
                                 <i class="fas fa-trash icon-btn del" onclick="deleteItem(${item.id})"></i>
                             </div>
                         </div>
@@ -167,14 +244,14 @@
                                 <div class="data-label">Password</div>
                                 <div class="data-value">••••••••</div>
                             </div>
-                             <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
+                            <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
                             <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
 
+                        ${noteHtml}
+
                         <div class="link-row">
-                            <a href="${fullLink}" target="_blank" class="website-link">
-                                Truy cập Website <i class="fas fa-external-link-alt"></i>
-                            </a>
+                            <a href="${fullLink}" target="_blank" class="website-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
                         </div>
                     </div>
                 `;
@@ -185,51 +262,41 @@
             const valueDiv = icon.previousElementSibling.querySelector('.data-value');
             if(valueDiv.innerText === '••••••••') {
                 valueDiv.innerText = pass;
-                icon.className = "fas fa-eye-slash";
-                icon.style.color = "var(--primary)";
+                icon.className = "fas fa-eye-slash"; icon.style.color = "var(--primary)";
             } else {
                 valueDiv.innerText = '••••••••';
-                icon.className = "fas fa-eye";
-                icon.style.color = "#aaa";
+                icon.className = "fas fa-eye"; icon.style.color = "#aaa";
             }
         }
 
         function copy(btn, text) {
             navigator.clipboard.writeText(text);
             const originalText = btn.innerText;
-            
-            // Đổi giao diện nút
             btn.innerText = "ĐÃ CHÉP";
             btn.classList.add('copied');
-            
             if(navigator.vibrate) navigator.vibrate(50);
-
-            setTimeout(() => {
-                btn.innerText = originalText;
-                btn.classList.remove('copied');
-            }, 1500);
+            setTimeout(() => { btn.innerText = originalText; btn.classList.remove('copied'); }, 1500);
         }
 
-        // CRUD LOGIC
+        // CRUD
         function openModal(id = null) {
             document.getElementById('modal').style.display = 'flex';
-            document.getElementById('inpWeb').value = '';
-            document.getElementById('inpName').value = '';
-            document.getElementById('inpUser').value = '';
-            document.getElementById('inpPass').value = '';
-            document.getElementById('editId').value = '';
+            // Reset fields
+            ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
 
             if (id) {
                 const item = vault.find(i => i.id === id);
                 document.getElementById('editId').value = id;
-                document.getElementById('inpWeb').value = item.web;
-                document.getElementById('inpName').value = item.name;
-                document.getElementById('inpUser').value = item.user;
-                document.getElementById('inpPass').value = item.pass;
+                document.getElementById('inpWeb').value = item.web || '';
+                document.getElementById('inpName').value = item.name || '';
+                document.getElementById('inpUser').value = item.user || '';
+                document.getElementById('inpPass').value = item.pass || '';
+                document.getElementById('inpNote').value = item.note || '';
             }
         }
 
-        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
 
         function saveData() {
             const id = document.getElementById('editId').value;
@@ -238,33 +305,35 @@
                 web: document.getElementById('inpWeb').value,
                 name: document.getElementById('inpName').value,
                 user: document.getElementById('inpUser').value,
-                pass: document.getElementById('inpPass').value
+                pass: document.getElementById('inpPass').value,
+                note: document.getElementById('inpNote').value
             };
 
-            if (!data.name || !data.pass) return alert("Cần nhập tên và mật khẩu");
+            if (!data.name) return alert("Vui lòng nhập tên!");
 
             if (id) {
                 const idx = vault.findIndex(i => i.id == id);
                 vault[idx] = data;
             } else {
-                vault.unshift(data); // Thêm lên đầu
+                vault.unshift(data);
             }
-            
-            localStorage.setItem('vault_v4', JSON.stringify(vault));
-            closeModal();
-            render();
+            saveVault();
+            closeModal('modal');
         }
 
         function deleteItem(id) {
-            if(confirm('Xóa tài khoản này?')) {
+            if(confirm('Xóa mục này?')) {
                 vault = vault.filter(i => i.id !== id);
-                localStorage.setItem('vault_v4', JSON.stringify(vault));
-                render();
+                saveVault();
             }
         }
 
+        function saveVault() {
+            localStorage.setItem('vault_v5', JSON.stringify(vault));
+            render();
+        }
+
         render();
-        // Service Worker Reg
         if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
     </script>
 </body>
