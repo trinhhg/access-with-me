@@ -3,68 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vault App</title>
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <title>Secure Vault</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#175DDC">
+    <meta name="theme-color" content="#2c3e50">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #175DDC; --bg: #f2f4f8; --text: #333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 80px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        :root { --primary: #2980b9; --bg: #ecf0f1; --card-bg: #ffffff; --text: #2c3e50; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: var(--bg); margin: 0; padding-top: 80px; padding-bottom: 100px; 
+            -webkit-tap-highlight-color: transparent; user-select: none; color: var(--text);
+        }
         
         /* HEADER */
-        .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; }
+        .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 10px; }
         .search-container { position: relative; flex: 1; }
-        .search-box { width: 100%; padding: 12px 15px 12px 45px; border-radius: 25px; border: none; font-size: 16px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
-        .search-box::placeholder { color: rgba(255,255,255,0.7); }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
+        .search-box { width: 100%; padding: 12px 15px 12px 40px; border-radius: 8px; border: none; font-size: 16px; background: rgba(255,255,255,0.9); color: #333; outline: none; box-sizing: border-box; }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #7f8c8d; }
         .settings-btn { color: white; font-size: 20px; padding: 10px; cursor: pointer; }
 
         /* INSTALL PROMPT */
-        #installBtn { display: none; background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-bottom: 15px; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+        #installBtn { display: none; background: white; color: var(--primary); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; margin: 0 15px 15px 15px; width: calc(100% - 30px); box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; text-align: center; }
 
-        /* LIST CARD */
-        .container { padding: 10px 15px; }
-        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid #fff; }
-        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-        .card-brand { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
-        .brand-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; background: #fff; }
-        .brand-name { font-weight: 700; font-size: 17px; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-actions { display: flex; gap: 15px; }
-        .icon-btn { color: #95a5a6; font-size: 18px; cursor: pointer; padding: 5px; }
-        .icon-btn.del { color: #ff6b6b; }
-
-        .data-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: #f8f9fa; padding: 8px 12px; border-radius: 8px; }
-        .data-content { flex: 1; overflow: hidden; margin-right: 10px; }
-        .data-label { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 2px; }
-        .data-value { font-size: 14px; font-family: 'Courier New', monospace; color: #333; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        /* LIST CARD & GROUPING */
+        .container { padding: 10px 15px; max-width: 600px; margin: 0 auto; }
         
-        .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 6px; min-width: 60px; transition: all 0.2s; }
-        .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
-
-        /* NOTE ROW */
-        .note-row { background: #fff8e1; border: 1px solid #ffe0b2; padding: 10px; border-radius: 8px; font-size: 14px; color: #d35400; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; }
-        .note-icon { margin-top: 2px; }
-
-        .link-row { margin-top: 5px; text-align: right; }
-        .website-link { font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 500; }
+        .group-card { background: var(--card-bg); border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
         
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
+        /* Header của nhóm (Logo + Tên) */
+        .group-header { background: #f8f9fa; padding: 12px 15px; display: flex; align-items: center; border-bottom: 1px solid #eee; }
+        .brand-logo { width: 28px; height: 28px; border-radius: 6px; object-fit: contain; margin-right: 10px; background: white; padding: 2px; }
+        .brand-name { font-weight: 700; font-size: 16px; color: #2c3e50; flex: 1; }
+        .group-count { background: #e0e0e0; font-size: 11px; padding: 2px 8px; border-radius: 10px; color: #555; }
 
-        /* MODALS */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-        .modal-content { background: white; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.2s; max-height: 90vh; overflow-y: auto; }
+        /* Từng tài khoản trong nhóm */
+        .account-item { padding: 15px; border-bottom: 1px solid #f0f0f0; position: relative; }
+        .account-item:last-child { border-bottom: none; }
+        
+        .acc-info-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .username-display { font-weight: 600; font-size: 15px; color: #34495e; }
+        .action-icons { display: flex; gap: 15px; }
+        .act-btn { color: #95a5a6; cursor: pointer; font-size: 16px; padding: 5px; }
+        .act-btn:hover { color: var(--primary); }
+        .act-btn.del:hover { color: #e74c3c; }
+
+        .pass-row { display: flex; align-items: center; justify-content: space-between; background: #fdfdfd; padding: 8px 10px; border-radius: 6px; border: 1px solid #eee; }
+        .pass-value { font-size: 14px; color: #555; letter-spacing: 1px; flex: 1; margin-right: 10px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; } /* Đã đổi font */
+        .copy-btn { font-size: 12px; font-weight: 700; color: var(--primary); background: none; border: none; cursor: pointer; padding: 5px 10px; border-radius: 4px; background: #eaf2f8; }
+        .copy-btn.copied { background: #2ecc71; color: white; }
+
+        .note-block { margin-top: 8px; font-size: 13px; color: #d35400; background: #fff8e1; padding: 6px 10px; border-radius: 4px; display: flex; gap: 6px; }
+
+        .link-row { margin-top: 8px; text-align: right; }
+        .web-link { font-size: 12px; color: #7f8c8d; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
+
+        /* FAB */
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 5px 15px rgba(41, 128, 185, 0.4); z-index: 200; cursor: pointer; }
+
+        /* MODAL */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; width: 90%; max-width: 400px; border-radius: 12px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); animation: popIn 0.2s; }
+        
         .inp-group { margin-bottom: 15px; }
-        .inp-group label { font-size: 13px; color: #666; font-weight: 600; margin-bottom: 5px; display: block; }
-        .inp { width: 100%; padding: 12px; border: 1px solid #eee; background: #f9f9f9; border-radius: 10px; font-size: 16px; outline: none; box-sizing: border-box; }
-        textarea.inp { resize: none; height: 80px; font-family: inherit; }
+        .inp-label { font-size: 12px; font-weight: 600; color: #7f8c8d; margin-bottom: 5px; display: block; text-transform: uppercase; }
+        .inp { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; outline: none; box-sizing: border-box; transition: border 0.2s; }
+        .inp:focus { border-color: var(--primary); }
         
-        .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
-        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; flex: 1; cursor: pointer; }
-        .btn-close { background: #f0f0f0; color: #555; }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 15px; }
+        .btn-close { background: #f1f2f6; color: #57606f; }
         .btn-save { background: var(--primary); color: white; }
         .btn-full { width: 100%; margin-bottom: 10px; }
 
-        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -77,70 +89,70 @@
         <i class="fas fa-cog settings-btn" onclick="openSettings()"></i>
     </div>
 
-    <div class="container">
-        <button id="installBtn" onclick="installPWA()"><i class="fas fa-download"></i> CÀI ĐẶT APP NGAY</button>
-        <div id="list"></div>
-    </div>
+    <button id="installBtn" onclick="installPWA()"><i class="fas fa-download"></i> CÀI ĐẶT ỨNG DỤNG (APP)</button>
+
+    <div class="container" id="list"></div>
 
     <div class="fab" onclick="openModal()"><i class="fas fa-plus"></i></div>
 
     <div class="modal" id="modal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Tài khoản</h2>
+            <h3 style="margin-top:0; color:var(--text)">Thông tin tài khoản</h3>
             <input type="hidden" id="editId">
             
             <div class="inp-group">
-                <label>Website (Tự lấy Logo)</label>
-                <input type="text" id="inpWeb" class="inp" placeholder="facebook.com" onblur="autoFillName()">
+                <label class="inp-label">Website / Ứng dụng</label>
+                <input type="text" id="entry_web" class="inp" placeholder="VD: facebook.com" onblur="autoFillName()">
             </div>
             <div class="inp-group">
-                <label>Tên gợi nhớ</label>
-                <input type="text" id="inpName" class="inp">
+                <label class="inp-label">Tên gợi nhớ (Dùng để gom nhóm)</label>
+                <input type="text" id="entry_name" class="inp" placeholder="VD: Facebook">
             </div>
             <div class="inp-group">
-                <label>Tên đăng nhập</label>
-                <input type="text" id="inpUser" class="inp">
+                <label class="inp-label">Tên đăng nhập</label>
+                <input type="text" id="entry_user" class="inp">
             </div>
             <div class="inp-group">
-                <label>Mật khẩu</label>
-                <input type="text" id="inpPass" class="inp">
+                <label class="inp-label">Mật khẩu</label>
+                <div style="position:relative">
+                    <input type="text" id="entry_pass" class="inp">
+                </div>
             </div>
             <div class="inp-group">
-                <label>Ghi chú (Tùy chọn)</label>
-                <textarea id="inpNote" class="inp" placeholder="Mã khôi phục, câu hỏi bảo mật..."></textarea>
+                <label class="inp-label">Ghi chú</label>
+                <input type="text" id="entry_note" class="inp" placeholder="Ghi chú thêm...">
             </div>
 
             <div class="btn-row">
                 <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
-                <button class="btn btn-save" onclick="saveData()">Lưu</button>
+                <button class="btn btn-save" onclick="saveData()">Lưu lại</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Cài đặt & Backup</h2>
-            <p style="font-size:14px; color:#666">Dùng tính năng này để chuyển dữ liệu sang máy mới.</p>
+            <h3 style="margin-top:0; color:var(--text)">Cài đặt & Dữ liệu</h3>
+            <p style="font-size:13px; color:#666">Hỗ trợ file CSV (Excel) 4 cột: Tên gợi nhớ, Tên đăng nhập, Mật khẩu, Ghi chú.</p>
             
-            <button class="btn btn-save btn-full" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất dữ liệu (Backup)</button>
-            <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Nhập dữ liệu (Restore)</button>
-            <input type="file" id="fileInput" style="display:none" onchange="importData(this)">
+            <button class="btn btn-save btn-full" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Xuất file Excel (.csv)</button>
+            <button class="btn btn-close btn-full" onclick="document.getElementById('csvInput').click()"><i class="fas fa-file-upload"></i> Nhập file Excel (.csv)</button>
+            <input type="file" id="csvInput" accept=".csv" style="display:none" onchange="importCSV(this)">
             
-            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px">
+            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px">
                 <button class="btn btn-close" onclick="closeModal('settingsModal')" style="width:100%">Đóng</button>
             </div>
         </div>
     </div>
 
     <script>
-        let vault = JSON.parse(localStorage.getItem('vault_v5')) || [];
-        let deferredPrompt; // Biến để lưu sự kiện cài đặt PWA
+        let vault = JSON.parse(localStorage.getItem('vault_v6')) || [];
+        let deferredPrompt;
 
-        // 1. PWA INSTALL LOGIC
+        // 1. PWA INSTALL HANDLER
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // Hiện nút cài đặt
             document.getElementById('installBtn').style.display = 'block';
         });
 
@@ -148,150 +160,197 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('installBtn').style.display = 'none';
-                }
+                if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
                 deferredPrompt = null;
             }
         }
 
-        // 2. BACKUP & RESTORE LOGIC
-        function exportData() {
-            const dataStr = JSON.stringify(vault, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
+        // 2. CSV EXPORT & IMPORT (Excel Compatible)
+        function exportCSV() {
+            // Header CSV (Có BOM để Excel hiển thị đúng tiếng Việt)
+            let csvContent = "\uFEFFTên gợi nhớ,Tên đăng nhập,Mật khẩu,Ghi chú,Website\n";
+            
+            // Sắp xếp trước khi xuất
+            vault.sort((a,b) => a.name.localeCompare(b.name));
+
+            vault.forEach(item => {
+                // Escape dấu phẩy bằng dấu ngoặc kép
+                let row = [
+                    `"${item.name || ''}"`,
+                    `"${item.user || ''}"`,
+                    `"${item.pass || ''}"`,
+                    `"${item.note || ''}"`,
+                    `"${item.web || ''}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `vault_backup_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
         }
 
-        function importData(input) {
+        function importCSV(input) {
             const file = input.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        if(confirm(`Tìm thấy ${data.length} tài khoản. Bạn có muốn ghi đè lên dữ liệu hiện tại không?`)) {
-                            vault = data;
-                            saveVault();
-                            alert("Nhập dữ liệu thành công!");
-                            closeModal('settingsModal');
-                        }
-                    } else { alert("File không hợp lệ!"); }
-                } catch (err) { alert("Lỗi đọc file: " + err); }
+                const text = e.target.result;
+                const rows = text.split('\n').slice(1); // Bỏ dòng header
+                let count = 0;
+                
+                rows.forEach(row => {
+                    if(row.trim() === '') return;
+                    // Regex để tách CSV có dấu phẩy nằm trong ngoặc kép
+                    const cols = row.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                    const cleanCols = cols.map(c => c.replace(/^"|"$/g, '').trim()); // Xóa ngoặc kép
+
+                    if(cleanCols.length >= 3) {
+                        vault.push({
+                            id: Date.now() + Math.random(),
+                            name: cleanCols[0],
+                            user: cleanCols[1],
+                            pass: cleanCols[2],
+                            note: cleanCols[3] || '',
+                            web: cleanCols[4] || ''
+                        });
+                        count++;
+                    }
+                });
+
+                saveVault();
+                alert(`Đã nhập thành công ${count} tài khoản!`);
+                closeModal('settingsModal');
             };
             reader.readAsText(file);
         }
 
-        // 3. CORE FUNCTIONS
-        function getFavicon(url) {
-            if (!url) return 'https://cdn-icons-png.flaticon.com/512/2889/2889676.png';
-            let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
-            return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-        }
-
-        function autoFillName() {
-            const web = document.getElementById('inpWeb').value;
-            const name = document.getElementById('inpName');
-            if (web && !name.value) {
-                let domain = web.replace('https://', '').replace('http://', '').split('/')[0].replace('www.', '');
-                name.value = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
-            }
-        }
-
+        // 3. RENDER WITH GROUPING
         function render() {
             const q = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
             list.innerHTML = '';
 
-            vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q)).forEach(item => {
-                let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
-                
-                // LOGIC HIỂN THỊ GHI CHÚ: Có nội dung mới hiện
-                let noteHtml = '';
-                if (item.note && item.note.trim() !== "") {
-                    noteHtml = `<div class="note-row"><i class="fas fa-sticky-note note-icon"></i> <span>${item.note}</span></div>`;
-                }
+            // Lọc dữ liệu
+            let filtered = vault.filter(i => 
+                (i.name||'').toLowerCase().includes(q) || 
+                (i.user||'').toLowerCase().includes(q) ||
+                (i.web||'').toLowerCase().includes(q)
+            );
 
-                list.innerHTML += `
-                    <div class="card">
-                        <div class="card-top">
-                            <div class="card-brand">
-                                <img src="${getFavicon(item.web)}" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
+            // Sắp xếp A-Z để gom nhóm
+            filtered.sort((a,b) => a.name.localeCompare(b.name));
+
+            let currentGroup = '';
+            let groupHtml = '';
+
+            filtered.forEach((item, index) => {
+                // Kiểm tra xem có bắt đầu nhóm mới không
+                if (item.name !== currentGroup) {
+                    // Nếu không phải lần đầu, đóng thẻ nhóm cũ
+                    if (currentGroup !== '') {
+                        groupHtml += `</div>`; // Đóng group-card cũ
+                        list.innerHTML += groupHtml;
+                    }
+                    
+                    // Mở nhóm mới
+                    currentGroup = item.name;
+                    let favicon = getFavicon(item.web);
+                    groupHtml = `
+                        <div class="group-card">
+                            <div class="group-header">
+                                <img src="${favicon}" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
                                 <span class="brand-name">${item.name}</span>
                             </div>
-                            <div class="card-actions">
-                                <i class="fas fa-pen icon-btn" onclick="openModal(${item.id})"></i>
-                                <i class="fas fa-trash icon-btn del" onclick="deleteItem(${item.id})"></i>
+                    `;
+                }
+
+                // Render Item
+                let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
+                groupHtml += `
+                    <div class="account-item">
+                        <div class="acc-info-row">
+                            <span class="username-display">${item.user}</span>
+                            <div class="action-icons">
+                                <i class="fas fa-pen act-btn" onclick="openModal(${item.id})"></i>
+                                <i class="fas fa-trash act-btn del" onclick="deleteItem(${item.id})"></i>
                             </div>
                         </div>
-
-                        <div class="data-row">
-                            <div class="data-content">
-                                <div class="data-label">Username</div>
-                                <div class="data-value">${item.user}</div>
-                            </div>
-                            <button class="copy-btn" onclick="copy(this, '${item.user}')">COPY</button>
-                        </div>
-
-                        <div class="data-row">
-                            <div class="data-content">
-                                <div class="data-label">Password</div>
-                                <div class="data-value">••••••••</div>
-                            </div>
-                            <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
+                        
+                        <div class="pass-row">
+                            <span class="pass-value">••••••••</span>
+                            <i class="fas fa-eye" style="color:#bdc3c7; cursor:pointer; margin-right:10px" onclick="togglePass(this, '${item.pass}')"></i>
                             <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
-
-                        ${noteHtml}
-
+                        
+                        ${item.note ? `<div class="note-block"><i class="fas fa-sticky-note"></i> ${item.note}</div>` : ''}
+                        
                         <div class="link-row">
-                            <a href="${fullLink}" target="_blank" class="website-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
+                            <a href="${fullLink}" target="_blank" class="web-link">Truy cập <i class="fas fa-external-link-alt"></i></a>
                         </div>
                     </div>
                 `;
+
+                // Nếu là item cuối cùng của danh sách
+                if (index === filtered.length - 1) {
+                    groupHtml += `</div>`;
+                    list.innerHTML += groupHtml;
+                }
             });
+            
+            if(filtered.length === 0) list.innerHTML = '<div style="text-align:center; color:#999; margin-top:50px">Không tìm thấy dữ liệu</div>';
+        }
+
+        // --- UTILS ---
+        function getFavicon(url) {
+            if (!url) return 'https://cdn-icons-png.flaticon.com/512/2889/2889676.png';
+            let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
+            return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
         }
 
         function togglePass(icon, pass) {
-            const valueDiv = icon.previousElementSibling.querySelector('.data-value');
-            if(valueDiv.innerText === '••••••••') {
-                valueDiv.innerText = pass;
+            const span = icon.previousElementSibling;
+            if(span.innerText === '••••••••') {
+                span.innerText = pass;
                 icon.className = "fas fa-eye-slash"; icon.style.color = "var(--primary)";
             } else {
-                valueDiv.innerText = '••••••••';
-                icon.className = "fas fa-eye"; icon.style.color = "#aaa";
+                span.innerText = '••••••••';
+                icon.className = "fas fa-eye"; icon.style.color = "#bdc3c7";
             }
         }
 
         function copy(btn, text) {
             navigator.clipboard.writeText(text);
             const originalText = btn.innerText;
-            btn.innerText = "ĐÃ CHÉP";
-            btn.classList.add('copied');
-            if(navigator.vibrate) navigator.vibrate(50);
-            setTimeout(() => { btn.innerText = originalText; btn.classList.remove('copied'); }, 1500);
+            btn.innerText = "OK"; btn.classList.add('copied');
+            setTimeout(() => { btn.innerText = originalText; btn.classList.remove('copied'); }, 1000);
         }
 
-        // CRUD
+        function autoFillName() {
+            const web = document.getElementById('entry_web').value;
+            const name = document.getElementById('entry_name');
+            if (web && !name.value) {
+                let domain = web.replace('https://', '').replace('http://', '').split('/')[0].replace('www.', '');
+                name.value = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
+            }
+        }
+
+        // --- CRUD ---
         function openModal(id = null) {
             document.getElementById('modal').style.display = 'flex';
-            // Reset fields
-            ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
-
+            ['entry_web','entry_name','entry_user','entry_pass','entry_note','editId'].forEach(k => document.getElementById(k).value = '');
             if (id) {
                 const item = vault.find(i => i.id === id);
                 document.getElementById('editId').value = id;
-                document.getElementById('inpWeb').value = item.web || '';
-                document.getElementById('inpName').value = item.name || '';
-                document.getElementById('inpUser').value = item.user || '';
-                document.getElementById('inpPass').value = item.pass || '';
-                document.getElementById('inpNote').value = item.note || '';
+                document.getElementById('entry_web').value = item.web || '';
+                document.getElementById('entry_name').value = item.name || '';
+                document.getElementById('entry_user').value = item.user || '';
+                document.getElementById('entry_pass').value = item.pass || '';
+                document.getElementById('entry_note').value = item.note || '';
             }
         }
 
@@ -302,39 +361,43 @@
             const id = document.getElementById('editId').value;
             const data = {
                 id: id ? Number(id) : Date.now(),
-                web: document.getElementById('inpWeb').value,
-                name: document.getElementById('inpName').value,
-                user: document.getElementById('inpUser').value,
-                pass: document.getElementById('inpPass').value,
-                note: document.getElementById('inpNote').value
+                web: document.getElementById('entry_web').value,
+                name: document.getElementById('entry_name').value,
+                user: document.getElementById('entry_user').value,
+                pass: document.getElementById('entry_pass').value,
+                note: document.getElementById('entry_note').value
             };
-
-            if (!data.name) return alert("Vui lòng nhập tên!");
+            if (!data.name) return alert("Vui lòng nhập tên gợi nhớ!");
 
             if (id) {
                 const idx = vault.findIndex(i => i.id == id);
                 vault[idx] = data;
             } else {
-                vault.unshift(data);
+                vault.push(data);
             }
             saveVault();
             closeModal('modal');
         }
 
         function deleteItem(id) {
-            if(confirm('Xóa mục này?')) {
+            if(confirm('Xóa tài khoản này?')) {
                 vault = vault.filter(i => i.id !== id);
                 saveVault();
             }
         }
 
         function saveVault() {
-            localStorage.setItem('vault_v5', JSON.stringify(vault));
+            localStorage.setItem('vault_v6', JSON.stringify(vault));
             render();
         }
 
         render();
-        if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+        // Register SW - Bước quan trọng nhất để lên PWA
+        if('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered!', reg))
+                .catch(err => console.log('SW failed', err));
+        }
     </script>
 </body>
 </html>
