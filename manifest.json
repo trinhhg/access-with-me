@@ -1,10 +1,11 @@
 {
-  "name": "Kho Bảo Mật",
+  "name": "Password Vault",
   "short_name": "Vault",
-  "start_url": ".",
+  "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#175DDC",
+  "background_color": "#f2f4f8",
   "theme_color": "#175DDC",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Bitwarden-logo.svg/512px-Bitwarden-logo.svg.png",
