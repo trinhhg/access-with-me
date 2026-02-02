@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vault-app-v4';
+const CACHE_NAME = 'vault-ultimate-v5';
 const ASSETS = [
     '/',
     '/index.html',
@@ -19,11 +19,10 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    // Với Logo và ảnh bên ngoài -> Ưu tiên mạng, lỗi thì kệ
+    // Cache App Shell, Network only cho ảnh bên ngoài để tránh lỗi
     if (e.request.url.includes('google.com/s2/favicons') || e.request.url.includes('flaticon')) {
         e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
         return;
     }
-    // Với App chính -> Ưu tiên Cache để chạy Offline siêu tốc
     e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
 });
