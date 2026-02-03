@@ -1,9 +1,11 @@
-const CACHE_NAME = 'vault-ultimate-v5';
+const CACHE_NAME = 'vault-ultimate-v7'; // Tăng version để trình duyệt cập nhật
 const ASSETS = [
-    '/',
     '/index.html',
     '/manifest.json',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
+    '/icons/icon-192.png',
+    '/icons/icon-512.png',
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+    'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap' // Cache thêm font mới
 ];
 
 self.addEventListener('install', e => {
@@ -19,10 +21,11 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    // Cache App Shell, Network only cho ảnh bên ngoài để tránh lỗi
-    if (e.request.url.includes('google.com/s2/favicons') || e.request.url.includes('flaticon')) {
-        e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-        return;
+    // Chiến lược: Network First cho API, Cache First cho tài nguyên tĩnh
+    if (e.request.method === 'POST') {
+        return; // Không cache lệnh gửi dữ liệu
     }
-    e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+    e.respondWith(
+        caches.match(e.request).then(res => res || fetch(e.request))
+    );
 });
