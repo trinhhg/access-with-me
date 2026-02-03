@@ -1,40 +1,47 @@
-const CACHE_NAME = 'vault-ultimate-v8-fix'; // Tăng version
-const ASSETS = [
-    '/',
-    '/index.html',
-    '/manifest.json',
-    '/icons/icon-192.png', // Đảm bảo bạn có file này
-    '/icons/icon-512.png', // Đảm bảo bạn có file này
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-    'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap',
-    'https://cdnjs.cloudflare.com/ajax/libs/zip.js/2.7.29/zip.min.js' // Cache thêm thư viện ZIP
+// PHIÊN BẢN SW AN TOÀN - CHỐNG CRASH PWA
+const CACHE = 'vault-safe-v1';
+const APP_SHELL = [
+  '/index.html',
+  '/manifest.json',
+  '/icons/icon-192.png', // Đảm bảo bạn đã upload file này lên folder /icons/
+  '/icons/icon-512.png'  // Đảm bảo bạn đã upload file này lên folder /icons/
 ];
 
 self.addEventListener('install', e => {
-    self.skipWaiting();
-    e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(APP_SHELL))
+  );
 });
 
 self.addEventListener('activate', e => {
-    e.waitUntil(caches.keys().then(keys => Promise.all(
-        keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null)
-    )));
-    self.clients.claim();
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.map(k => k !== CACHE && caches.delete(k)))
+    )
+  );
+  self.clients.claim();
 });
 
 self.addEventListener('fetch', e => {
-    // FIX QUAN TRỌNG: Chỉ chặn GET request. 
-    // POST request (Gửi backup, Sync) phải đi thẳng ra mạng, không qua Cache.
-    if (e.request.method !== 'GET') {
-        return; 
-    }
+  const url = new URL(e.request.url);
 
+  // 1. KHÔNG can thiệp request ra ngoài domain (CDN, API Worker)
+  if (url.origin !== self.location.origin) return;
+
+  // 2. KHÔNG can thiệp POST/PUT (Upload, Sync)
+  if (e.request.method !== 'GET') return;
+
+  // 3. Xử lý khi mở App (Navigation)
+  if (e.request.mode === 'navigate') {
     e.respondWith(
-        caches.match(e.request).then(res => {
-            return res || fetch(e.request);
-        }).catch(() => {
-            // Fallback về trang chủ nếu mất mạng và không có cache
-            return caches.match('/index.html');
-        })
+      caches.match('/index.html').then(res => res || fetch('/index.html'))
     );
+    return;
+  }
+
+  // 4. Các file tĩnh (CSS, JS, Icons)
+  e.respondWith(
+    caches.match(e.request).then(res => res || fetch(e.request))
+  );
 });
