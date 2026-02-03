@@ -1,47 +1,39 @@
-// PHIÊN BẢN SW AN TOÀN - CHỐNG CRASH PWA
-const CACHE = 'vault-safe-v1';
+// sw.js - Safe Mode v2
+const CACHE_NAME = 'vault-safe-core-v2';
 const APP_SHELL = [
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.png', // Đảm bảo bạn đã upload file này lên folder /icons/
-  '/icons/icon-512.png'  // Đảm bảo bạn đã upload file này lên folder /icons/
+    '/index.html',
+    '/manifest.json',
+    '/icons/icon-192.png',
+    '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
-  self.skipWaiting();
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(APP_SHELL))
-  );
+    self.skipWaiting();
+    e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(APP_SHELL)));
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.map(k => k !== CACHE && caches.delete(k)))
-    )
-  );
-  self.clients.claim();
+    e.waitUntil(caches.keys().then(keys => Promise.all(
+        keys.map(k => k !== CACHE_NAME ? caches.delete(k) : null)
+    )));
+    self.clients.claim();
 });
 
 self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
+    const url = new URL(e.request.url);
 
-  // 1. KHÔNG can thiệp request ra ngoài domain (CDN, API Worker)
-  if (url.origin !== self.location.origin) return;
+    // 1. QUAN TRỌNG: Không bao giờ cache request gửi đi (POST) hoặc API
+    if (e.request.method !== 'GET' || url.origin !== self.location.origin) {
+        return; 
+    }
 
-  // 2. KHÔNG can thiệp POST/PUT (Upload, Sync)
-  if (e.request.method !== 'GET') return;
-
-  // 3. Xử lý khi mở App (Navigation)
-  if (e.request.mode === 'navigate') {
+    // 2. Ưu tiên Cache cho App Shell, còn lại Network First
     e.respondWith(
-      caches.match('/index.html').then(res => res || fetch('/index.html'))
+        caches.match(e.request).then(cached => {
+            return cached || fetch(e.request).catch(() => {
+                // Nếu mất mạng và không có cache, trả về trang chủ (Offline mode)
+                return caches.match('/index.html');
+            });
+        })
     );
-    return;
-  }
-
-  // 4. Các file tĩnh (CSS, JS, Icons)
-  e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request))
-  );
 });
