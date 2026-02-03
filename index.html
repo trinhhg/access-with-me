@@ -3,56 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>System Config</title>
-    <link rel="manifest" href="manifest.json">
+    <title>Note Manager</title> <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#175DDC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #175DDC; --bg: #f2f4f8; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 80px; padding-bottom: 100px; user-select: none; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #175DDC; --bg: #f2f4f8; --text: #333; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 90px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* HEADER & SEARCH */
-        .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        /* HEADER */
+        .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; }
         .search-container { position: relative; flex: 1; }
-        .search-box { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: none; font-size: 16px; background: rgba(255,255,255,0.2); color: white; outline: none; }
+        .search-box { width: 100%; padding: 12px 15px 12px 45px; border-radius: 25px; border: none; font-size: 16px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
         .search-box::placeholder { color: rgba(255,255,255,0.7); }
-        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
         .settings-btn { color: white; font-size: 20px; padding: 10px; cursor: pointer; }
 
-        /* LIST & CARDS */
-        .container { padding: 15px; }
-        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .card-top { display: flex; justify-content: space-between; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
-        .brand-name { font-weight: bold; color: #2c3e50; font-size: 16px; }
-        .icon-btn { color: #95a5a6; padding: 5px; cursor: pointer; }
-        .icon-btn.del { color: #e74c3c; }
+        /* SECURITY DISCLAIMER */
+        .security-banner { background: #fff3cd; color: #856404; padding: 10px 15px; font-size: 12px; margin: 10px 15px 0; border-radius: 8px; border: 1px solid #ffeeba; display: flex; gap: 10px; align-items: center; }
 
-        .data-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; background: #f8f9fa; padding: 8px; border-radius: 6px; }
-        .data-val { font-family: 'Roboto Mono', monospace; font-weight: 600; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px; }
-        .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px; }
+        /* LIST CARD */
+        .container { padding: 10px 15px; }
+        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.03); border: 1px solid #fff; }
+        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .card-brand { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+        .brand-logo { width: 32px; height: 32px; border-radius: 8px; object-fit: contain; background: #fff; }
+        .brand-name { font-weight: 700; font-size: 17px; color: #2c3e50; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-actions { display: flex; gap: 15px; }
+        .icon-btn { color: #95a5a6; font-size: 18px; cursor: pointer; padding: 5px; }
+        .icon-btn.del { color: #ff6b6b; }
+
+        .data-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; background: #f8f9fa; padding: 8px 12px; border-radius: 8px; }
+        .data-content { flex: 1; overflow: hidden; margin-right: 10px; }
+        .data-label { font-size: 11px; color: #999; text-transform: uppercase; margin-bottom: 2px; }
+        /* FONT ROBOTO MONO CHO DATA */
+        .data-value { font-size: 14px; font-family: 'Roboto Mono', monospace; color: #333; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        
+        .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 6px; min-width: 60px; transition: all 0.2s; }
         .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
-        
-        .note-block { background: #fff8e1; color: #d35400; padding: 8px; border-radius: 6px; font-size: 13px; margin-top: 5px; display: flex; gap: 5px; }
 
-        /* FAB & MODAL */
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 55px; height: 55px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 5px 15px rgba(23, 93, 220, 0.4); cursor: pointer; z-index: 200; }
+        .note-row { background: #fff8e1; border: 1px solid #ffe0b2; padding: 10px; border-radius: 8px; font-size: 14px; color: #d35400; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; }
+        .note-icon { margin-top: 2px; }
+
+        .link-row { margin-top: 5px; text-align: right; }
+        .website-link { font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 500; }
         
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-content { background: white; width: 85%; border-radius: 15px; padding: 20px; max-height: 90vh; overflow-y: auto; }
-        .inp-group { margin-bottom: 12px; }
-        .inp-group label { display: block; font-size: 12px; color: #666; font-weight: bold; margin-bottom: 4px; }
-        .inp { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; margin-top: 10px; cursor: pointer; }
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
+
+        /* MODALS & STATUS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .modal-content { background: white; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.2s; max-height: 90vh; overflow-y: auto; }
+        .inp-group { margin-bottom: 15px; }
+        .inp-group label { font-size: 13px; color: #666; font-weight: 600; margin-bottom: 5px; display: block; }
+        .inp { width: 100%; padding: 12px; border: 1px solid #eee; background: #f9f9f9; border-radius: 10px; font-size: 16px; outline: none; box-sizing: border-box; }
+        textarea.inp { resize: none; height: 80px; font-family: inherit; }
+        
+        .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        .btn { padding: 12px 24px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; flex: 1; cursor: pointer; }
+        .btn-close { background: #f0f0f0; color: #555; }
         .btn-save { background: var(--primary); color: white; }
-        .btn-close { background: #eee; color: #555; margin-top: 5px;}
+        .btn-full { width: 100%; margin-bottom: 10px; }
 
-        /* SYNC & PASS UI */
-        .sync-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: flex-end; }
-        .sync-col { flex: 1; }
-        .mini-btn { padding: 10px; border-radius: 8px; border: none; color: white; cursor: pointer; font-size: 16px; width: 45px; height: 42px;}
-        .btn-blue { background: #3498db; }
-        .btn-green { background: #27ae60; }
+        /* Sync Status Indicator */
+        #syncStatus { font-size: 12px; color: #666; text-align: center; margin-top: 5px; min-height: 15px; transition: color 0.3s;}
+
+        @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -60,13 +75,19 @@
     <div class="header">
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search" class="search-box" placeholder="Search config..." oninput="render()">
+            <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
         </div>
         <i class="fas fa-cog settings-btn" onclick="openSettings()"></i>
     </div>
+    
+    <div class="security-banner">
+        <i class="fas fa-shield-alt"></i>
+        <span>Dữ liệu lưu offline. Vui lòng không dùng cho tài khoản ngân hàng.</span>
+    </div>
 
     <div class="container">
-        <div id="statusMsg" style="text-align:center; font-size:12px; height:20px; margin-bottom:10px;"></div>
+        <div id="syncStatus"></div>
+        <button id="installBtn" onclick="installPWA()" style="display:none; background:white; color:var(--primary); border:none; padding:8px 15px; border-radius:20px; font-weight:bold; font-size:13px; margin: 15px 0; width:100%; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;"><i class="fas fa-download"></i> CÀI ĐẶT APP</button>
         <div id="list"></div>
     </div>
 
@@ -74,11 +95,15 @@
 
     <div class="modal" id="modal">
         <div class="modal-content">
-            <h3 style="margin-top:0; color:var(--primary)">Cấu hình</h3>
+            <h2 style="margin-top:0; color:var(--primary)">Chi tiết</h2>
             <input type="hidden" id="editId">
             <div class="inp-group">
-                <label>Tên dịch vụ (Facebook, Youtube...)</label>
-                <input type="text" id="inpName" class="inp" placeholder="Service Name">
+                <label>Website / App</label>
+                <input type="text" id="inpWeb" class="inp" placeholder="facebook.com" onblur="autoFillName()">
+            </div>
+            <div class="inp-group">
+                <label>Tên gợi nhớ</label>
+                <input type="text" id="inpName" class="inp">
             </div>
             <div class="inp-group">
                 <label>Tên đăng nhập</label>
@@ -90,219 +115,262 @@
             </div>
             <div class="inp-group">
                 <label>Ghi chú</label>
-                <input type="text" id="inpNote" class="inp">
+                <textarea id="inpNote" class="inp"></textarea>
             </div>
-            <div class="inp-group" style="display:none"> <input type="text" id="inpWeb"> 
+            <div class="btn-row">
+                <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
+                <button class="btn btn-save" onclick="saveData()">Lưu</button>
             </div>
-            <button class="btn btn-save" onclick="saveData()">LƯU LẠI</button>
-            <button class="btn btn-close" onclick="closeModal('modal')">ĐÓNG</button>
         </div>
     </div>
 
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h3 style="margin-top:0; color:var(--primary)">Cài đặt & Đồng bộ</h3>
+            <h2 style="margin-top:0; color:var(--primary)">Cài đặt</h2>
             
-            <div class="sync-row">
-                <div class="sync-col">
-                    <label style="font-size:11px; font-weight:bold; color:#666">Mật khẩu Excel Backup</label>
-                    <input type="password" id="excelPass" class="inp" placeholder="Nhập để lưu...">
-                </div>
-                <button class="mini-btn btn-blue" onclick="saveExcelPass()"><i class="fas fa-save"></i></button>
+            <div class="inp-group">
+                <label>Excel Password (Dùng cho Backup Telegram)</label>
+                <input type="password" id="excelPass" class="inp" placeholder="Nhập pass để mở file Excel backup..." value="123456">
+                <p style="font-size:11px; color:#888; margin-top:5px">Dữ liệu sẽ được gửi về Telegram mỗi khi bạn chỉnh sửa.</p>
             </div>
 
-            <div class="sync-row">
-                <div class="sync-col">
-                    <label style="font-size:11px; font-weight:bold; color:#666">Mật khẩu Đồng bộ (Sync)</label>
-                    <input type="password" id="syncPass" class="inp" placeholder="Nhập chung cho các máy">
-                </div>
-                <button class="mini-btn btn-green" onclick="triggerSyncLoad()"><i class="fas fa-cloud-download-alt"></i></button>
-            </div>
+            <button class="btn btn-save btn-full" onclick="exportData()"><i class="fas fa-file-export"></i> Xuất file JSON (Backup)</button>
+            <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Nhập file JSON (Restore)</button>
+            <input type="file" id="fileInput" style="display:none" onchange="importData(this)">
             
-            <p style="font-size:11px; color:#888; margin-top:-5px">
-                * Bấm nút <i class="fas fa-cloud-download-alt"></i> để Tải về máy này.<br>
-                * Dữ liệu tự động đẩy lên Cloud khi bạn Sửa/Thêm.
-            </p>
-
-            <button class="btn btn-close" onclick="closeModal('settingsModal')">ĐÓNG</button>
+            <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px">
+                <button class="btn btn-close" onclick="closeModal('settingsModal')" style="width:100%">Đóng</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- CẤU HÌNH ---
-        const WORKER_URL = "https://access-with-me.doicucden.workers.dev"; 
-        let vault = JSON.parse(localStorage.getItem('vault_v9')) || [];
+        let vault = JSON.parse(localStorage.getItem('vault_v5')) || [];
+        let deferredPrompt; 
+        
+        // ĐIỀN URL WORKER CỦA BẠN SAU KHI DEPLOY VÀO ĐÂY:
+        const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
 
-        // --- KHỞI TẠO ---
-        document.addEventListener('DOMContentLoaded', () => {
-            render();
-            // Load Excel Pass đã lưu
-            document.getElementById('excelPass').value = localStorage.getItem('excel_pass_memo') || '';
-            // Load Sync Pass đã lưu
-            document.getElementById('syncPass').value = localStorage.getItem('sync_pass_memo') || '';
-            
-            if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
         });
 
+        async function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
+                deferredPrompt = null;
+            }
+        }
+
+        // --- BACKEND SYNC LOGIC ---
+        async function syncToWorker() {
+            if(vault.length === 0) return;
+            const statusEl = document.getElementById('syncStatus');
+            const excelPass = document.getElementById('excelPass').value || '123456';
+            
+            statusEl.innerText = "Đang gửi backup về Telegram...";
+            statusEl.style.color = "#d35400";
+
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        records: vault,
+                        excel_password: excelPass
+                    })
+                });
+
+                if (response.ok) {
+                    statusEl.innerText = "Đã backup an toàn lúc " + new Date().toLocaleTimeString();
+                    statusEl.style.color = "#27ae60";
+                } else {
+                    statusEl.innerText = "Lỗi backup server";
+                    statusEl.style.color = "red";
+                }
+            } catch (err) {
+                console.error(err);
+                statusEl.innerText = "Lỗi kết nối backup";
+                statusEl.style.color = "red";
+            }
+        }
+
+        // --- EXPORT / IMPORT CẢI TIẾN ---
+        function exportData() {
+            // Sắp xếp trước khi xuất
+            const sortedVault = [...vault].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+            
+            const dataStr = JSON.stringify(sortedVault, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_grouped_${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        if(confirm(`Tìm thấy ${data.length} mục. Ghi đè?`)) {
+                            // Sắp xếp ngay khi nhập
+                            vault = data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+                            saveVault(false); // False = không sync ngay để tránh spam nếu file lớn
+                            alert("Nhập thành công!");
+                            closeModal('settingsModal');
+                        }
+                    }
+                } catch (err) { alert("Lỗi file!"); }
+            };
+            reader.readAsText(file);
+        }
+
         // --- CORE FUNCTIONS ---
+        function getFavicon(url) {
+            if (!url) return 'https://cdn-icons-png.flaticon.com/512/2889/2889676.png';
+            let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
+            return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+        }
+
+        function autoFillName() {
+            const web = document.getElementById('inpWeb').value;
+            const name = document.getElementById('inpName');
+            if (web && !name.value) {
+                let domain = web.replace('https://', '').replace('http://', '').split('/')[0].replace('www.', '');
+                name.value = domain.split('.')[0].charAt(0).toUpperCase() + domain.split('.')[0].slice(1);
+            }
+        }
+
         function render() {
-            const list = document.getElementById('list');
             const q = document.getElementById('search').value.toLowerCase();
+            const list = document.getElementById('list');
             list.innerHTML = '';
 
-            vault.filter(i => (i.name||'').toLowerCase().includes(q)).forEach(item => {
-                let noteHtml = item.note ? `<div class="note-block"><i class="fas fa-sticky-note"></i> ${item.note}</div>` : '';
-                
+            vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q)).forEach(item => {
+                let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
+                let noteHtml = item.note ? `<div class="note-row"><i class="fas fa-sticky-note note-icon"></i> <span>${item.note}</span></div>` : '';
+
                 list.innerHTML += `
                     <div class="card">
                         <div class="card-top">
-                            <span class="brand-name">${item.name}</span>
-                            <div>
+                            <div class="card-brand">
+                                <img src="${getFavicon(item.web)}" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
+                                <span class="brand-name">${item.name}</span>
+                            </div>
+                            <div class="card-actions">
                                 <i class="fas fa-pen icon-btn" onclick="openModal(${item.id})"></i>
                                 <i class="fas fa-trash icon-btn del" onclick="deleteItem(${item.id})"></i>
                             </div>
                         </div>
                         <div class="data-row">
-                            <span class="data-val">${item.user}</span>
-                            <button class="copy-btn" onclick="copy(this, '${item.user}')">USER</button>
+                            <div class="data-content">
+                                <div class="data-label">Username</div>
+                                <div class="data-value">${item.user}</div>
+                            </div>
+                            <button class="copy-btn" onclick="copy(this, '${item.user}')">COPY</button>
                         </div>
                         <div class="data-row">
-                            <span class="data-val">••••••••</span>
-                            <i class="fas fa-eye" style="color:#aaa; padding:5px" onclick="togglePass(this, '${item.pass}')"></i>
-                            <button class="copy-btn" onclick="copy(this, '${item.pass}')">PASS</button>
+                            <div class="data-content">
+                                <div class="data-label">Password</div>
+                                <div class="data-value">••••••••</div>
+                            </div>
+                            <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
+                            <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
                         ${noteHtml}
-                    </div>`;
+                        <div class="link-row">
+                            <a href="${fullLink}" target="_blank" class="website-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
+                        </div>
+                    </div>
+                `;
             });
         }
 
-        // --- ACTIONS ---
+        function togglePass(icon, pass) {
+            const valueDiv = icon.previousElementSibling.querySelector('.data-value');
+            if(valueDiv.innerText === '••••••••') {
+                valueDiv.innerText = pass;
+                icon.className = "fas fa-eye-slash"; icon.style.color = "var(--primary)";
+            } else {
+                valueDiv.innerText = '••••••••';
+                icon.className = "fas fa-eye"; icon.style.color = "#aaa";
+            }
+        }
+
+        function copy(btn, text) {
+            navigator.clipboard.writeText(text);
+            const originalText = btn.innerText;
+            btn.innerText = "ĐÃ CHÉP";
+            btn.classList.add('copied');
+            setTimeout(() => { btn.innerText = originalText; btn.classList.remove('copied'); }, 1500);
+        }
+
         function openModal(id = null) {
             document.getElementById('modal').style.display = 'flex';
-            ['inpName','inpUser','inpPass','inpNote','inpWeb','editId'].forEach(k => document.getElementById(k).value = '');
-            if(id) {
+            ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
+            if (id) {
                 const item = vault.find(i => i.id === id);
                 document.getElementById('editId').value = id;
-                document.getElementById('inpName').value = item.name;
-                document.getElementById('inpUser').value = item.user;
-                document.getElementById('inpPass').value = item.pass;
+                document.getElementById('inpWeb').value = item.web || '';
+                document.getElementById('inpName').value = item.name || '';
+                document.getElementById('inpUser').value = item.user || '';
+                document.getElementById('inpPass').value = item.pass || '';
                 document.getElementById('inpNote').value = item.note || '';
             }
         }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
 
         function saveData() {
             const id = document.getElementById('editId').value;
             const data = {
                 id: id ? Number(id) : Date.now(),
+                web: document.getElementById('inpWeb').value,
                 name: document.getElementById('inpName').value,
                 user: document.getElementById('inpUser').value,
                 pass: document.getElementById('inpPass').value,
-                note: document.getElementById('inpNote').value,
-                web: '' // Bỏ qua web, giữ structure
+                note: document.getElementById('inpNote').value
             };
 
-            if(!data.name) return alert("Cần nhập tên!");
+            if (!data.name) return alert("Vui lòng nhập tên!");
 
-            if(id) {
+            if (id) {
                 const idx = vault.findIndex(i => i.id == id);
                 vault[idx] = data;
             } else {
                 vault.unshift(data);
             }
-            
-            saveToStorage();
+            saveVault(true); // Trigger sync
             closeModal('modal');
-            
-            // Tự động Backup & Sync
-            pushToWorker('backup');    // Gửi Telegram
-            pushToWorker('sync_save'); // Gửi Cloud KV
         }
 
         function deleteItem(id) {
             if(confirm('Xóa mục này?')) {
                 vault = vault.filter(i => i.id !== id);
-                saveToStorage();
-                pushToWorker('backup');
-                pushToWorker('sync_save');
+                saveVault(true); // Trigger sync
             }
         }
 
-        // --- SYNC & SETTINGS ---
-        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function saveExcelPass() {
-            const val = document.getElementById('excelPass').value;
-            localStorage.setItem('excel_pass_memo', val);
-            alert("Đã lưu Pass Excel (vào bộ nhớ máy này)");
+        function saveVault(shouldSync = false) {
+            localStorage.setItem('vault_v5', JSON.stringify(vault));
+            render();
+            if(shouldSync) syncToWorker();
         }
 
-        async function triggerSyncLoad() {
-            const pass = document.getElementById('syncPass').value;
-            if(!pass) return alert("Chưa nhập mật khẩu đồng bộ!");
-            
-            localStorage.setItem('sync_pass_memo', pass); // Nhớ pass này
-            showStatus("Đang tải dữ liệu từ Cloud...", "#d35400");
-
-            try {
-                const res = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ action: 'sync_load', sync_pass: pass })
-                });
-                const json = await res.json();
-                
-                if(json.success) {
-                    if(confirm(`Tìm thấy ${json.data.length} mục trên Cloud. Ghi đè lên máy này?`)) {
-                        vault = json.data;
-                        saveToStorage();
-                        showStatus("Đồng bộ thành công!", "#27ae60");
-                        closeModal('settingsModal');
-                    }
-                } else {
-                    alert(json.msg);
-                    showStatus("Lỗi: " + json.msg, "red");
-                }
-            } catch(e) {
-                alert("Lỗi kết nối!");
-            }
-        }
-
-        async function pushToWorker(actionType) {
-            const syncPass = document.getElementById('syncPass').value || localStorage.getItem('sync_pass_memo');
-            
-            // Nếu action là sync_save mà không có pass thì bỏ qua sync cloud, chỉ backup telegram
-            if(actionType === 'sync_save' && !syncPass) return;
-
-            showStatus("Đang sao lưu...", "#d35400");
-            try {
-                await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        action: actionType,
-                        records: vault,
-                        sync_pass: syncPass,
-                        data: vault // Dùng cho sync_save
-                    })
-                });
-                showStatus("Đã sao lưu an toàn", "#27ae60");
-                setTimeout(() => showStatus("", ""), 3000);
-            } catch(e) { console.error(e); }
-        }
-
-        // --- UTILS ---
-        function saveToStorage() { localStorage.setItem('vault_v9', JSON.stringify(vault)); render(); }
-        function showStatus(msg, color) { const el = document.getElementById('statusMsg'); el.innerText = msg; el.style.color = color; }
-        function copy(btn, txt) {
-            navigator.clipboard.writeText(txt);
-            btn.classList.add('copied'); setTimeout(()=>btn.classList.remove('copied'), 1000);
-        }
-        function togglePass(icon, pass) {
-            const span = icon.previousElementSibling;
-            if(span.innerText === '••••••••') { span.innerText = pass; icon.className = "fas fa-eye-slash"; }
-            else { span.innerText = '••••••••'; icon.className = "fas fa-eye"; }
-        }
+        render();
+        if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
     </script>
 </body>
 </html>
