@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Safe Vault</title> 
+    <title>Vault Safe</title> 
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#175DDC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,16 +14,19 @@
         :root { --primary: #175DDC; --bg: #f2f4f8; --card-bg: #ffffff; }
         body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding-top: 70px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* HEADER */
-        .header { background: var(--primary); padding: 10px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; gap: 15px; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .search-container { flex: 1; position: relative; }
-        .search-box { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: none; font-size: 15px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
-        .search-box::placeholder { color: rgba(255,255,255,0.8); }
-        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.8); }
-        .header-btn { color: white; font-size: 20px; cursor: pointer; }
+        /* HEADER FIX LOGO */
+        .header { background: var(--primary); padding: 10px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; gap: 12px; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         
-        /* COUNTER */
-        .badge { position: absolute; top: 8px; right: 45px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .header-logo { width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; }
+        
+        .search-container { flex: 1; position: relative; }
+        .search-box { width: 100%; padding: 10px 15px 10px 38px; border-radius: 8px; border: none; font-size: 15px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
+        .search-box::placeholder { color: rgba(255,255,255,0.8); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.8); font-size: 14px; }
+        .header-btn { color: white; font-size: 20px; cursor: pointer; padding: 5px; }
+        
+        /* BADGE */
+        .badge { position: absolute; top: 8px; right: 45px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); pointer-events: none; }
 
         /* LIST CARD */
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
@@ -61,12 +64,15 @@
         /* SYNC UI FIX */
         .sync-row { display: flex; gap: 8px; align-items: center; }
         .sync-row .inp { flex: 1; }
-        .btn-sync { background: var(--primary); color: white; border: none; height: 45px; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
+        .btn-sync { background: var(--primary); color: white; border: none; height: 45px; padding: 0 15px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; font-size:13px; }
 
         .btn-row { display: flex; gap: 10px; margin-top: 20px; }
         .btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; }
         .btn-close { background: #f1f3f5; color: #333; }
         .btn-save { background: var(--primary); color: white; }
+        
+        /* OFFLINE INDICATOR */
+        #offline-alert { display:none; background:#333; color:white; font-size:11px; text-align:center; padding:5px; position:fixed; top:50px; width:100%; z-index:999; }
 
         @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
@@ -74,14 +80,21 @@
 <body>
 
     <div class="header">
+        <svg class="header-logo" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25 5C13.9543 5 5 13.9543 5 25C5 36.0457 13.9543 45 25 45C36.0457 45 45 36.0457 45 25C45 13.9543 36.0457 5 25 5ZM14.5 17.5C14.5 16.1193 15.6193 15 17 15H33C34.3807 15 35.5 16.1193 35.5 17.5V32.5C35.5 33.8807 34.3807 35 33 35H17C15.6193 35 14.5 33.8807 14.5 32.5V17.5Z" fill="white" fill-opacity="0.3"/>
+            <path d="M18.5 21C18.5 20.1716 19.1716 19.5 20 19.5H30C30.8284 19.5 31.5 20.1716 31.5 21V29C31.5 29.8284 30.8284 30.5 30 30.5H20C19.1716 30.5 18.5 29.8284 18.5 29V21Z" fill="white"/>
+        </svg>
+
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
         </div>
+        
         <div class="badge" id="counter">0</div>
         <i class="fas fa-cog header-btn" onclick="openSettings()"></i>
     </div>
 
+    <div id="offline-alert"><i class="fas fa-wifi"></i> Đang offline. Dữ liệu sẽ tự đồng bộ khi có mạng.</div>
     <div class="container" id="list"></div>
 
     <div class="fab" onclick="openModal()"><i class="fas fa-plus"></i></div>
@@ -92,7 +105,7 @@
             <input type="hidden" id="editId">
             <div class="inp-group">
                 <label class="inp-label">Nguồn (Web/App)</label>
-                <input type="text" id="inpWeb" class="inp" placeholder="VD: facebook.com" onblur="autoFillName()">
+                <input type="text" id="inpWeb" class="inp" placeholder="VD: google.com" onblur="autoFillName()">
             </div>
             <div class="inp-group">
                 <label class="inp-label">Tên hiển thị</label>
@@ -125,19 +138,22 @@
                 <label class="inp-label">Đồng bộ Cloud (Sync)</label>
                 <div class="sync-row">
                     <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync...">
-                    <button class="btn-sync" onclick="syncCloud('load')"><i class="fas fa-cloud-download-alt"></i> TẢI VỀ</button>
+                    <button class="btn-sync" onclick="manualSyncLoad(this)"><i class="fas fa-cloud-download-alt"></i> TẢI VỀ</button>
                 </div>
-                <p style="font-size:11px; color:#666; margin-top:5px">Nhập mã và ấn nút Tải về để đồng bộ dữ liệu.</p>
+                <p style="font-size:11px; color:#666; margin-top:5px">Nhập mã và ấn Tải về để đồng bộ. Khi đã có mã, mọi thay đổi sẽ <b>tự động</b> sync.</p>
             </div>
             
-            <button class="btn btn-close" style="width:100%" onclick="syncCloud('save')">⬆ Gửi dữ liệu lên Cloud</button>
+            <button class="btn btn-close" style="width:100%" onclick="manualSyncSave(this)"><i class="fas fa-cloud-upload-alt"></i> Gửi thủ công lên Cloud</button>
 
             <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
 
             <div class="inp-group">
                 <label class="inp-label">Mật khẩu Backup ZIP (Telegram)</label>
-                <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén...">
-                <button class="btn btn-close" style="width:100%; margin-top:5px" onclick="saveConfig()">Lưu Pass ZIP</button>
+                <div class="sync-row">
+                     <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén...">
+                     <button class="btn-sync" style="background:#333" onclick="saveZipPass(this)">LƯU</button>
+                </div>
+                <p style="font-size:11px; color:#d35400; margin-top:5px">Lưu pass xong sẽ tự động gửi backup ngay.</p>
             </div>
 
             <button class="btn btn-close" style="width:100%; margin-top:10px" onclick="closeModal('settingsModal')">Đóng</button>
@@ -148,6 +164,7 @@
         const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
         let vault = JSON.parse(localStorage.getItem('vault_safe_v1')) || [];
         
+        // --- INIT ---
         window.addEventListener('load', () => {
             if(window.zip) zip.configure({ useWebWorkers: false });
             
@@ -155,14 +172,41 @@
             document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
             
             render();
+            checkOffline();
             
-            // Register PWA Service Worker
+            // XỬ LÝ PWA NGHIÊM NGẶT
             if('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log('SW Registered'))
-                .catch(e => console.error('SW Fail', e));
+                .then(reg => {
+                    console.log('SW Registered Scope:', reg.scope);
+                    // Ép update SW nếu có thay đổi
+                    if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
+                })
+                .catch(e => console.error('SW Fail:', e));
             }
         });
+
+        // Offline Listener
+        window.addEventListener('online', () => { 
+            checkOffline(); 
+            processQueue(); 
+        });
+        window.addEventListener('offline', checkOffline);
+
+        function checkOffline() {
+            document.getElementById('offline-alert').style.display = navigator.onLine ? 'none' : 'block';
+        }
+
+        async function processQueue() {
+            if(localStorage.getItem('pending_sync')) {
+                await autoSync();
+                localStorage.removeItem('pending_sync');
+            }
+            if(localStorage.getItem('pending_backup')) {
+                await autoBackup();
+                localStorage.removeItem('pending_backup');
+            }
+        }
 
         // --- RENDER ---
         function getFavicon(url) {
@@ -177,13 +221,10 @@
             list.innerHTML = '';
             
             const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q));
-            
-            // Update counter
             document.getElementById('counter').innerText = vault.length;
 
             filtered.forEach(item => {
                 let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
-                
                 list.innerHTML += `
                     <div class="card">
                         <div class="card-top">
@@ -196,7 +237,6 @@
                                 <i class="fas fa-trash action-icon del" onclick="deleteItem(${item.id})"></i>
                             </div>
                         </div>
-
                         <div class="field-group">
                             <div class="field-content">
                                 <div class="field-label">TÀI KHOẢN / ID</div>
@@ -204,7 +244,6 @@
                             </div>
                             <button class="copy-btn" onclick="copy(this, '${item.user}')">COPY</button>
                         </div>
-
                         <div class="field-group">
                             <div class="field-content">
                                 <div class="field-label">MÃ BẢO MẬT / TOKEN</div>
@@ -213,9 +252,7 @@
                             <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
                             <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
-
                         ${item.note ? `<div class="note-box"><i class="fas fa-sticky-note"></i> <span>${item.note}</span></div>` : ''}
-                        
                         <a href="${fullLink}" target="_blank" class="web-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
                     </div>
                 `;
@@ -250,11 +287,10 @@
             }
         }
 
-        // --- CRUD ---
+        // --- CRUD + AUTO TRIGGER ---
         function openModal(id = null) {
             document.getElementById('modal').style.display = 'flex';
             ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
-            
             if (id) {
                 const item = vault.find(i => i.id === id);
                 if(item) {
@@ -270,11 +306,6 @@
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
-        
-        function saveConfig() {
-            localStorage.setItem('zip_pass', document.getElementById('zipPassInput').value);
-            alert("Đã lưu pass ZIP!");
-        }
 
         function saveData() {
             const id = document.getElementById('editId').value;
@@ -296,78 +327,154 @@
                 vault.unshift(item);
             }
             
-            localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
-            render();
+            finalizeChange();
             closeModal('modal');
-            autoBackup();
         }
 
         function deleteItem(id) {
             if(confirm("Xóa mục này?")) {
                 vault = vault.filter(i => i.id !== id);
-                localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
-                render();
-                autoBackup();
+                finalizeChange();
             }
         }
 
-        // --- WORKER SYNC & BACKUP ---
-        async function syncCloud(action) {
-            const syncPass = document.getElementById('syncPassInput').value;
-            if(!syncPass) return alert("Vui lòng nhập mật khẩu Sync!");
-            
-            localStorage.setItem('sync_pass', syncPass);
-            
-            const btn = event.target.closest('button');
-            const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
-            btn.disabled = true;
+        // Hàm chung khi có thay đổi dữ liệu
+        function finalizeChange() {
+            localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
+            render();
+            // TRIGGER AUTO
+            autoSync();
+            autoBackup();
+        }
 
+        // --- SYNC LOGIC ---
+        
+        // 1. Manual Sync (Có nút bấm)
+        async function manualSyncSave(btn) {
+            const pass = document.getElementById('syncPassInput').value;
+            if(!pass) return alert("Nhập mật khẩu sync!");
+            localStorage.setItem('sync_pass', pass);
+            
+            const oldTxt = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
             try {
-                const payload = {
-                    action: action === 'save' ? 'sync_save' : 'sync_load',
-                    sync_pass: syncPass,
-                    data: action === 'save' ? vault : null
-                };
-
-                const res = await fetch(WORKER_URL, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                const json = await res.json();
-
-                if(json.success) {
-                    if(action === 'load') {
-                        if(json.data && json.data.length > 0) {
-                            if(confirm(`Tìm thấy ${json.data.length} mục. Ghi đè vào máy?`)) {
-                                vault = json.data;
-                                localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
-                                render();
-                                alert("Đồng bộ thành công!");
-                                closeModal('settingsModal');
-                            }
-                        } else {
-                            alert("Không có dữ liệu hoặc sai mã.");
-                        }
-                    } else {
-                        alert("Đã lưu lên Cloud!");
-                    }
-                } else {
-                    alert("Lỗi: " + json.msg);
-                }
+                await performSync('save', pass);
+                btn.innerHTML = '<i class="fas fa-check"></i> Đã gửi xong!';
+                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
             } catch(e) {
-                alert("Lỗi kết nối: " + e.message);
+                btn.innerHTML = '❌ Lỗi';
+                alert(e.message);
+                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
             }
-            btn.innerHTML = oldHtml;
-            btn.disabled = false;
         }
 
-        async function autoBackup() {
-            const zipPass = localStorage.getItem('zip_pass');
-            if(!zipPass) return;
+        async function manualSyncLoad(btn) {
+            const pass = document.getElementById('syncPassInput').value;
+            if(!pass) return alert("Nhập mật khẩu sync!");
+            localStorage.setItem('sync_pass', pass);
+            
+            const oldTxt = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
+            try {
+                await performSync('load', pass);
+                btn.innerHTML = '<i class="fas fa-check"></i> Xong';
+                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
+                closeModal('settingsModal');
+            } catch(e) {
+                btn.innerHTML = '❌ Lỗi';
+                alert(e.message);
+                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
+            }
+        }
+
+        // 2. Auto Sync (Silent)
+        async function autoSync() {
+            const pass = localStorage.getItem('sync_pass');
+            if(!pass) return; // Chưa cài pass thì thôi
+
+            if(!navigator.onLine) {
+                localStorage.setItem('pending_sync', 'true');
+                return;
+            }
 
             try {
+                await performSync('save', pass);
+                console.log("Auto sync success");
+            } catch(e) {
+                console.error("Auto sync fail", e);
+            }
+        }
+
+        // Core Sync Function
+        async function performSync(action, pass) {
+            const payload = {
+                action: action === 'save' ? 'sync_save' : 'sync_load',
+                sync_pass: pass,
+                data: action === 'save' ? vault : null
+            };
+            
+            const res = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const json = await res.json();
+            
+            if(!json.success) throw new Error(json.msg);
+            
+            if(action === 'load') {
+                if(json.data && json.data.length > 0) {
+                    vault = json.data;
+                    localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
+                    render();
+                } else {
+                    throw new Error("Không có dữ liệu!");
+                }
+            }
+        }
+
+        // --- BACKUP ZIP LOGIC ---
+        function saveZipPass(btn) {
+            const val = document.getElementById('zipPassInput').value;
+            if(val) {
+                localStorage.setItem('zip_pass', val);
+                const old = btn.innerText;
+                btn.innerText = "OK";
+                setTimeout(()=>btn.innerText=old, 1500);
+                // Vừa nhập xong là gửi ngay
+                autoBackup(true); 
+            }
+        }
+
+        async function autoBackup(force = false) {
+            const zipPass = localStorage.getItem('zip_pass');
+            if(!zipPass) {
+                // Nếu chưa có pass, đánh dấu để khi nào nhập thì gửi
+                localStorage.setItem('pending_backup', 'true');
+                return;
+            }
+            
+            if(!navigator.onLine) {
+                localStorage.setItem('pending_backup', 'true');
+                return;
+            }
+
+            try {
+                // Xử lý đếm file CSV
+                const today = new Date().toISOString().slice(0,10);
+                let lastDate = localStorage.getItem('backup_date');
+                let count = parseInt(localStorage.getItem('backup_count') || '0');
+                
+                if(lastDate !== today) {
+                    count = 1;
+                    localStorage.setItem('backup_date', today);
+                } else {
+                    count++;
+                }
+                localStorage.setItem('backup_count', count);
+                const csvName = `data_lan_${count}.csv`;
+
+                // Tạo CSV
                 let csv = "\uFEFFName,ID,Token,Note\n"; 
                 vault.forEach(item => {
                     const row = [item.name, item.user, item.pass, item.note]
@@ -377,7 +484,7 @@
 
                 const blobWriter = new zip.BlobWriter("application/zip");
                 const zipWriter = new zip.ZipWriter(blobWriter, { password: zipPass, encryptionStrength: 3 });
-                await zipWriter.add("safe_data.csv", new zip.TextReader(csv));
+                await zipWriter.add(csvName, new zip.TextReader(csv));
                 await zipWriter.close();
                 const blob = blobWriter.getData();
 
@@ -386,6 +493,8 @@
                 fd.append('file', await blob);
                 
                 await fetch(WORKER_URL, { method: 'POST', body: fd });
+                console.log("Auto backup sent: " + csvName);
+                
             } catch(e) { console.error("Backup err", e); }
         }
     </script>
