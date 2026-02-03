@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vault-final-v5';
+const CACHE_NAME = 'vault-fix-cors-v1';
 const ASSETS = [
   '/',
   '/index.html',
@@ -27,23 +27,26 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Bỏ qua các request POST (Sync/Backup) hoặc chrome-extension
-  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
+  const url = event.request.url;
 
+  // QUAN TRỌNG: Nếu request gửi đến Worker API (doicucden) -> BỎ QUA, KHÔNG CACHE
+  if (url.includes('workers.dev') || event.request.method === 'POST') {
+    return; 
+  }
+
+  // Chỉ cache các file tĩnh (GET)
   event.respondWith(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.match(event.request).then(response => {
-        // Fetch từ mạng để cập nhật cache cho lần sau
-        const fetchPromise = fetch(event.request).then(networkResponse => {
-          if (networkResponse && networkResponse.status === 200) {
-            cache.put(event.request, networkResponse.clone());
-          }
-          return networkResponse;
-        }).catch(() => {}); // Lỗi mạng thì bỏ qua
-
-        // Nếu có cache thì trả về ngay, không thì đợi mạng
-        return response || fetchPromise;
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request).then(networkRes => {
+         // Cache lại font và thư viện zip nếu tải từ mạng
+         if(networkRes.ok && (url.startsWith('http'))) {
+             const clone = networkRes.clone();
+             caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
+         }
+         return networkRes;
       });
+    }).catch(() => {
+        // Fallback offline (nếu cần)
     })
   );
 });
