@@ -1,12 +1,11 @@
 {
-  "name": "Note Manager",
-  "short_name": "My Notes",
+  "name": "Trinh Hg",
+  "short_name": "Vault",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f2f4f8",
   "theme_color": "#175DDC",
-  "orientation": "portrait",
   "icons": [
     {
       "src": "/icons/icon-192.png",
