@@ -3,363 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>My Personal Manager</title> 
+    <title>Safe Vault</title> 
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#2c3e50">
+    <meta name="theme-color" content="#175DDC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js"></script>
 
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f8f9fa; --text: #333; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding-top: 80px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        :root { --primary: #175DDC; --bg: #f2f4f8; --card-bg: #ffffff; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding-top: 70px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         /* HEADER */
-        .header { background: #fff; padding: 10px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 10px; height: 60px; }
-        .search-box { flex: 1; background: #f1f3f5; border: none; padding: 10px 15px; border-radius: 8px; font-size: 15px; outline: none; color: #333; }
-        .header-icon { font-size: 20px; color: var(--primary); padding: 8px; cursor: pointer; }
+        .header { background: var(--primary); padding: 10px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; gap: 15px; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .search-container { flex: 1; position: relative; }
+        .search-box { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: none; font-size: 15px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
+        .search-box::placeholder { color: rgba(255,255,255,0.8); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.8); }
+        .header-btn { color: white; font-size: 20px; cursor: pointer; }
+        
+        /* COUNTER */
+        .badge { position: absolute; top: 8px; right: 45px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
-        /* CARD STYLE */
+        /* LIST CARD */
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .card { background: white; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); border: 1px solid #eee; }
-        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .app-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
-        .app-logo { width: 28px; height: 28px; border-radius: 6px; object-fit: contain; }
-        .app-name { font-weight: 600; font-size: 16px; color: var(--primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         
-        .field-row { display: flex; align-items: center; justify-content: space-between; background: #f8f9fa; padding: 8px 10px; border-radius: 6px; margin-bottom: 8px; }
-        .field-info { flex: 1; overflow: hidden; margin-right: 8px; }
-        .field-label { font-size: 10px; color: #888; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-        .field-val { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #333; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        
-        .action-btn { border: none; background: none; color: #999; cursor: pointer; padding: 5px; font-size: 14px; }
-        .copy-tag { background: white; border: 1px solid #ddd; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--primary); cursor: pointer; }
-        .copy-tag.active { background: #27ae60; color: white; border-color: #27ae60; }
+        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
+        .brand-info { display: flex; align-items: center; gap: 12px; }
+        .brand-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: contain; }
+        .brand-name { font-weight: 700; font-size: 17px; color: #333; }
+        .card-actions { display: flex; gap: 15px; }
+        .action-icon { color: #999; font-size: 18px; cursor: pointer; padding: 5px; }
+        .action-icon.del { color: #ff6b6b; }
 
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 56px; height: 56px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 22px; box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3); z-index: 200; cursor: pointer; }
+        .field-group { margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .field-content { flex: 1; overflow: hidden; margin-right: 10px; }
+        .field-label { font-size: 10px; color: #999; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; letter-spacing: 0.5px; }
+        .field-value { font-size: 15px; font-family: 'Roboto Mono', monospace; color: #333; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .copy-btn { background: white; border: 1px solid #dee2e6; color: var(--primary); font-weight: 700; font-size: 11px; padding: 6px 12px; border-radius: 6px; min-width: 60px; cursor: pointer; text-transform: uppercase; }
+        .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+        
+        .note-box { background: #fff8e1; color: #d35400; padding: 10px; border-radius: 8px; font-size: 14px; margin-top: 10px; display: flex; align-items: flex-start; gap: 8px; }
+        .web-link { display: block; text-align: right; margin-top: 12px; font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 600; }
+
+        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 10px 25px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
 
         /* MODAL */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-box { background: white; width: 90%; max-width: 400px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); animation: slideUp 0.2s; }
-        .inp-wrap { margin-bottom: 15px; }
-        .inp-label { display: block; font-size: 12px; color: #666; font-weight: 600; margin-bottom: 5px; }
-        .inp { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; }
-        .inp:focus { border-color: var(--primary); }
-        .btn-group { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-sec { background: #f1f3f5; color: #333; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; width: 85%; max-width: 400px; border-radius: 20px; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: popUp 0.2s ease-out; }
+        .inp-group { margin-bottom: 15px; }
+        .inp-label { display: block; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 5px; }
+        .inp { width: 100%; padding: 12px; border: 1px solid #eee; background: #f8f9fa; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
+        .inp:focus { border-color: var(--primary); background: white; }
+        
+        /* SYNC UI FIX */
+        .sync-row { display: flex; gap: 8px; align-items: center; }
+        .sync-row .inp { flex: 1; }
+        .btn-sync { background: var(--primary); color: white; border: none; height: 45px; padding: 0 20px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; }
 
-        #statusMsg { font-size: 12px; text-align: center; margin-bottom: 10px; font-weight: 600; height: 15px; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+        .btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; }
+        .btn-close { background: #f1f3f5; color: #333; }
+        .btn-save { background: var(--primary); color: white; }
+
+        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <input type="text" id="search" class="search-box" placeholder="Tìm kiếm nhanh..." oninput="render()">
-        <i class="fas fa-cloud-upload-alt header-icon" onclick="openSettings()"></i>
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
+        </div>
+        <div class="badge" id="counter">0</div>
+        <i class="fas fa-cog header-btn" onclick="openSettings()"></i>
     </div>
 
-    <div class="container">
-        <div id="statusMsg"></div>
-        <div id="list"></div>
-    </div>
+    <div class="container" id="list"></div>
 
-    <div class="fab" onclick="openEditor()"><i class="fas fa-plus"></i></div>
+    <div class="fab" onclick="openModal()"><i class="fas fa-plus"></i></div>
 
-    <div class="modal" id="editorModal">
-        <div class="modal-box">
-            <h3 style="margin-top:0; color:var(--primary)">Thông tin mục</h3>
-            <input type="hidden" id="itemId">
-            
-            <div class="inp-wrap">
-                <label class="inp-label">Nguồn / Link</label>
-                <input type="text" id="in_src" class="inp" placeholder="VD: google.com" onblur="autoParseName()">
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <h2 style="margin-top:0; color:var(--primary)">Thông tin</h2>
+            <input type="hidden" id="editId">
+            <div class="inp-group">
+                <label class="inp-label">Nguồn (Web/App)</label>
+                <input type="text" id="inpWeb" class="inp" placeholder="VD: facebook.com" onblur="autoFillName()">
             </div>
-            <div class="inp-wrap">
-                <label class="inp-label">Tên gợi nhớ</label>
-                <input type="text" id="in_name" class="inp">
+            <div class="inp-group">
+                <label class="inp-label">Tên hiển thị</label>
+                <input type="text" id="inpName" class="inp">
             </div>
-            <div class="inp-wrap">
-                <label class="inp-label">Định danh (ID)</label>
-                <input type="text" id="in_uid" class="inp">
+            <div class="inp-group">
+                <label class="inp-label">Tài khoản / ID</label>
+                <input type="text" id="inpUser" class="inp">
             </div>
-            <div class="inp-wrap">
-                <label class="inp-label">Mã Token / Khóa</label>
-                <input type="text" id="in_key" class="inp">
+            <div class="inp-group">
+                <label class="inp-label">Mã bảo mật / Token</label>
+                <input type="text" id="inpPass" class="inp">
             </div>
-            <div class="inp-wrap">
+            <div class="inp-group">
                 <label class="inp-label">Ghi chú</label>
-                <textarea id="in_note" class="inp" style="height:60px; resize:none"></textarea>
+                <textarea id="inpNote" class="inp" style="height:80px; resize:none"></textarea>
             </div>
-
-            <div class="btn-group">
-                <button class="btn btn-sec" onclick="closeModal('editorModal')">Đóng</button>
-                <button class="btn btn-primary" onclick="saveItem()">Lưu</button>
+            <div class="btn-row">
+                <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
+                <button class="btn btn-save" onclick="saveData()">Lưu</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="settingsModal">
-        <div class="modal-box">
-            <h3 style="margin-top:0; color:var(--primary)">Cấu hình & Backup</h3>
+        <div class="modal-content">
+            <h2 style="margin-top:0; color:var(--primary)">Cài đặt</h2>
             
-            <div class="inp-wrap">
-                <label class="inp-label">Mã ZIP (Dùng để Auto Backup)</label>
-                <input type="password" id="cfg_zip" class="inp" placeholder="Nhập mã bảo vệ file zip...">
+            <div class="inp-group">
+                <label class="inp-label">Đồng bộ Cloud (Sync)</label>
+                <div class="sync-row">
+                    <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync...">
+                    <button class="btn-sync" onclick="syncCloud('load')"><i class="fas fa-cloud-download-alt"></i> TẢI VỀ</button>
+                </div>
+                <p style="font-size:11px; color:#666; margin-top:5px">Nhập mã và ấn nút Tải về để đồng bộ dữ liệu.</p>
             </div>
             
-            <div class="inp-wrap">
-                <label class="inp-label">Mã Sync (Cloud)</label>
-                <input type="password" id="cfg_sync" class="inp" placeholder="Mã bí mật để đồng bộ...">
+            <button class="btn btn-close" style="width:100%" onclick="syncCloud('save')">⬆ Gửi dữ liệu lên Cloud</button>
+
+            <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+
+            <div class="inp-group">
+                <label class="inp-label">Mật khẩu Backup ZIP (Telegram)</label>
+                <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén...">
+                <button class="btn btn-close" style="width:100%; margin-top:5px" onclick="saveConfig()">Lưu Pass ZIP</button>
             </div>
 
-            <div class="btn-group" style="margin-bottom:10px">
-                <button class="btn btn-primary" onclick="triggerSync('save')">⬆ Gửi lên Cloud</button>
-                <button class="btn btn-sec" onclick="triggerSync('load')">⬇ Tải về máy</button>
-            </div>
-            
-            <button class="btn btn-sec" style="width:100%" onclick="saveConfigs()">Lưu Cấu Hình</button>
-            
-            <div style="margin-top:15px; border-top:1px solid #eee; padding-top:10px">
-                 <button class="btn btn-sec" style="width:100%" onclick="document.getElementById('importFile').click()"><i class="fas fa-file-import"></i> Restore từ File ZIP</button>
-                 <input type="file" id="importFile" hidden accept=".zip" onchange="restoreFromFile(this)">
-            </div>
-            <button class="btn btn-sec" style="width:100%; margin-top:5px" onclick="closeModal('settingsModal')">Đóng</button>
+            <button class="btn btn-close" style="width:100%; margin-top:10px" onclick="closeModal('settingsModal')">Đóng</button>
         </div>
     </div>
 
     <script>
-        // --- CONFIG ---
-        // Thay link worker của bạn vào đây:
-        const API_URL = "https://access-with-me.doicucden.workers.dev/"; 
-
-        let db = JSON.parse(localStorage.getItem('my_data_store')) || [];
-
+        const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
+        let vault = JSON.parse(localStorage.getItem('vault_safe_v1')) || [];
+        
         window.addEventListener('load', () => {
             if(window.zip) zip.configure({ useWebWorkers: false });
             
-            document.getElementById('cfg_zip').value = localStorage.getItem('cfg_zip') || '';
-            document.getElementById('cfg_sync').value = localStorage.getItem('cfg_sync') || '';
+            document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
+            document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
+            
             render();
-
-            if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+            
+            // Register PWA Service Worker
+            if('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('SW Registered'))
+                .catch(e => console.error('SW Fail', e));
+            }
         });
 
-        // --- CORE LOGIC ---
+        // --- RENDER ---
         function getFavicon(url) {
-            if (!url) return 'https://cdn-icons-png.flaticon.com/512/3523/3523063.png'; // Icon cái khiên
+            if (!url) return 'https://cdn-icons-png.flaticon.com/512/1000/1000997.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
             return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-        }
-
-        function autoParseName() {
-            const src = document.getElementById('in_src').value;
-            const name = document.getElementById('in_name');
-            if (src && !name.value) {
-                let d = src.replace('https://', '').replace('http://', '').split('/')[0].replace('www.', '');
-                name.value = d.split('.')[0].toUpperCase();
-            }
         }
 
         function render() {
             const q = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
             list.innerHTML = '';
-
-            const filtered = db.filter(i => (i.n||'').toLowerCase().includes(q) || (i.s||'').toLowerCase().includes(q));
+            
+            const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q));
+            
+            // Update counter
+            document.getElementById('counter').innerText = vault.length;
 
             filtered.forEach(item => {
-                let link = (item.s && item.s.startsWith('http')) ? item.s : 'https://' + item.s;
+                let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
+                
                 list.innerHTML += `
                     <div class="card">
-                        <div class="card-header">
-                            <div class="app-info">
-                                <img src="${getFavicon(item.s)}" class="app-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3523/3523063.png'">
-                                <div class="app-name">${item.n}</div>
+                        <div class="card-top">
+                            <div class="brand-info">
+                                <img src="${getFavicon(item.web)}" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
+                                <span class="brand-name">${item.name}</span>
                             </div>
-                            <div>
-                                <button class="action-btn" onclick="editItem(${item.id})"><i class="fas fa-pen"></i></button>
-                                <button class="action-btn" onclick="delItem(${item.id})" style="color:#e74c3c"><i class="fas fa-trash"></i></button>
+                            <div class="card-actions">
+                                <i class="fas fa-pen action-icon" onclick="openModal(${item.id})"></i>
+                                <i class="fas fa-trash action-icon del" onclick="deleteItem(${item.id})"></i>
                             </div>
-                        </div>
-                        
-                        <div class="field-row">
-                            <div class="field-info">
-                                <div class="field-label">ID / Định danh</div>
-                                <div class="field-val">${item.u}</div>
-                            </div>
-                            <button class="copy-tag" onclick="copyTxt(this, '${item.u}')">COPY</button>
                         </div>
 
-                        <div class="field-row">
-                            <div class="field-info">
-                                <div class="field-label">Mã Token</div>
-                                <div class="field-val">••••••••</div>
+                        <div class="field-group">
+                            <div class="field-content">
+                                <div class="field-label">TÀI KHOẢN / ID</div>
+                                <div class="field-value">${item.user}</div>
                             </div>
-                            <i class="fas fa-eye action-btn" onclick="toggleVis(this, '${item.p}')"></i>
-                            <button class="copy-tag" onclick="copyTxt(this, '${item.p}')">COPY</button>
+                            <button class="copy-btn" onclick="copy(this, '${item.user}')">COPY</button>
                         </div>
-                        
-                        ${item.nt ? `<div style="font-size:12px; color:#666; background:#fff3cd; padding:5px; margin-top:5px; border-radius:4px">${item.nt}</div>` : ''}
-                        
-                        <div style="text-align:right; margin-top:5px;">
-                            <a href="${link}" target="_blank" style="font-size:11px; color:var(--primary); text-decoration:none">MỞ LIÊN KẾT <i class="fas fa-external-link-alt"></i></a>
+
+                        <div class="field-group">
+                            <div class="field-content">
+                                <div class="field-label">MÃ BẢO MẬT / TOKEN</div>
+                                <div class="field-value">••••••••</div>
+                            </div>
+                            <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
+                            <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
+
+                        ${item.note ? `<div class="note-box"><i class="fas fa-sticky-note"></i> <span>${item.note}</span></div>` : ''}
+                        
+                        <a href="${fullLink}" target="_blank" class="web-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
                     </div>
                 `;
             });
         }
 
-        function copyTxt(el, txt) {
-            navigator.clipboard.writeText(txt);
-            el.innerText = "ĐÃ COPY"; el.classList.add('active');
-            setTimeout(() => { el.innerText = "COPY"; el.classList.remove('active'); }, 1500);
+        // --- ACTIONS ---
+        function togglePass(icon, pass) {
+            const valDiv = icon.previousElementSibling.querySelector('.field-value');
+            if(valDiv.innerText === '••••••••') {
+                valDiv.innerText = pass;
+                icon.className = "fas fa-eye-slash"; icon.style.color = "var(--primary)";
+            } else {
+                valDiv.innerText = '••••••••';
+                icon.className = "fas fa-eye"; icon.style.color = "#aaa";
+            }
         }
 
-        function toggleVis(icon, txt) {
-            const val = icon.previousElementSibling.querySelector('.field-val');
-            if(val.innerText === '••••••••') { val.innerText = txt; icon.className = 'fas fa-eye-slash action-btn'; }
-            else { val.innerText = '••••••••'; icon.className = 'fas fa-eye action-btn'; }
+        function copy(btn, txt) {
+            navigator.clipboard.writeText(txt);
+            let old = btn.innerText;
+            btn.innerText = "OK"; btn.classList.add('copied');
+            setTimeout(() => { btn.innerText = old; btn.classList.remove('copied'); }, 1500);
+        }
+
+        function autoFillName() {
+            const web = document.getElementById('inpWeb').value;
+            const name = document.getElementById('inpName');
+            if(web && !name.value) {
+                let d = web.replace('https://','').replace('http://','').split('/')[0].replace('www.','');
+                name.value = d.split('.')[0].charAt(0).toUpperCase() + d.split('.')[0].slice(1);
+            }
         }
 
         // --- CRUD ---
-        function openEditor(id=null) {
-            document.getElementById('editorModal').style.display = 'flex';
-            ['in_src','in_name','in_uid','in_key','in_note','itemId'].forEach(k => document.getElementById(k).value = '');
-            if(id) {
-                const i = db.find(x => x.id === id);
-                document.getElementById('itemId').value = id;
-                document.getElementById('in_src').value = i.s || '';
-                document.getElementById('in_name').value = i.n || '';
-                document.getElementById('in_uid').value = i.u || '';
-                document.getElementById('in_key').value = i.p || '';
-                document.getElementById('in_note').value = i.nt || '';
+        function openModal(id = null) {
+            document.getElementById('modal').style.display = 'flex';
+            ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
+            
+            if (id) {
+                const item = vault.find(i => i.id === id);
+                if(item) {
+                    document.getElementById('editId').value = id;
+                    document.getElementById('inpWeb').value = item.web || '';
+                    document.getElementById('inpName').value = item.name || '';
+                    document.getElementById('inpUser').value = item.user || '';
+                    document.getElementById('inpPass').value = item.pass || '';
+                    document.getElementById('inpNote').value = item.note || '';
+                }
             }
         }
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
+        
+        function saveConfig() {
+            localStorage.setItem('zip_pass', document.getElementById('zipPassInput').value);
+            alert("Đã lưu pass ZIP!");
+        }
 
-        function saveItem() {
-            const id = document.getElementById('itemId').value;
+        function saveData() {
+            const id = document.getElementById('editId').value;
             const item = {
                 id: id ? Number(id) : Date.now(),
-                s: document.getElementById('in_src').value,
-                n: document.getElementById('in_name').value,
-                u: document.getElementById('in_uid').value,
-                p: document.getElementById('in_key').value,
-                nt: document.getElementById('in_note').value
+                web: document.getElementById('inpWeb').value,
+                name: document.getElementById('inpName').value,
+                user: document.getElementById('inpUser').value,
+                pass: document.getElementById('inpPass').value,
+                note: document.getElementById('inpNote').value
             };
 
-            if(!item.n) return alert("Cần nhập tên!");
+            if(!item.name) return alert("Vui lòng nhập tên!");
 
-            if(id) db[db.findIndex(x=>x.id==id)] = item;
-            else db.unshift(item);
-
-            localStorage.setItem('my_data_store', JSON.stringify(db));
+            if(id) {
+                const idx = vault.findIndex(i => i.id == id);
+                vault[idx] = item;
+            } else {
+                vault.unshift(item);
+            }
+            
+            localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
             render();
-            closeModal('editorModal');
-            
-            // Trigger Backup
-            backupToCloud();
+            closeModal('modal');
+            autoBackup();
         }
 
-        function delItem(id) {
+        function deleteItem(id) {
             if(confirm("Xóa mục này?")) {
-                db = db.filter(x => x.id !== id);
-                localStorage.setItem('my_data_store', JSON.stringify(db));
+                vault = vault.filter(i => i.id !== id);
+                localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
                 render();
-                backupToCloud();
+                autoBackup();
             }
         }
 
-        function saveConfigs() {
-            localStorage.setItem('cfg_zip', document.getElementById('cfg_zip').value);
-            localStorage.setItem('cfg_sync', document.getElementById('cfg_sync').value);
-            alert("Đã lưu cấu hình!");
-        }
-
-        // --- BACKUP & SYNC ---
-        async function createZipBlob(pass) {
-            const blobWriter = new zip.BlobWriter("application/zip");
-            const zipWriter = new zip.ZipWriter(blobWriter, { password: pass, encryptionStrength: 3 });
+        // --- WORKER SYNC & BACKUP ---
+        async function syncCloud(action) {
+            const syncPass = document.getElementById('syncPassInput').value;
+            if(!syncPass) return alert("Vui lòng nhập mật khẩu Sync!");
             
-            // Tạo CSV Content
-            let csv = "\uFEFFName,ID,Token,Note,Source\n";
-            db.forEach(i => {
-                const row = [i.n, i.u, i.p, i.nt, i.s].map(t => `"${String(t||'').replace(/"/g, '""')}"`).join(",");
-                csv += row + "\n";
-            });
-
-            await zipWriter.add("safe_data.csv", new zip.TextReader(csv));
-            await zipWriter.close();
-            return blobWriter.getData();
-        }
-
-        async function backupToCloud() {
-            const pass = localStorage.getItem('cfg_zip');
-            const status = document.getElementById('statusMsg');
-            if(!pass) return; // Không có pass thì không backup
-
-            status.innerText = "⏳ Đang backup...";
-            status.style.color = "blue";
+            localStorage.setItem('sync_pass', syncPass);
+            
+            const btn = event.target.closest('button');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
+            btn.disabled = true;
 
             try {
-                const blob = await createZipBlob(pass);
-                const fd = new FormData();
-                fd.append('action', 'backup_file');
-                fd.append('file', blob);
-
-                // Quan trọng: Không set Content-Type header thủ công khi gửi FormData
-                const res = await fetch(API_URL, { method: 'POST', body: fd });
-                if(res.ok) {
-                    status.innerText = "✅ Đã backup an toàn";
-                    status.style.color = "green";
-                    setTimeout(() => status.innerText = "", 3000);
-                } else {
-                    status.innerText = "❌ Lỗi backup";
-                    status.style.color = "red";
-                }
-            } catch(e) {
-                console.error(e);
-                status.innerText = "❌ Lỗi mạng";
-                status.style.color = "red";
-            }
-        }
-
-        async function triggerSync(action) {
-            const pass = document.getElementById('cfg_sync').value;
-            if(!pass) return alert("Cần nhập mã Sync!");
-            
-            const btn = event.target;
-            const orgTxt = btn.innerText;
-            btn.innerText = "⏳ ...";
-
-            try {
-                const body = {
+                const payload = {
                     action: action === 'save' ? 'sync_save' : 'sync_load',
-                    sync_pass: pass,
-                    data: action === 'save' ? db : null
+                    sync_pass: syncPass,
+                    data: action === 'save' ? vault : null
                 };
 
-                const res = await fetch(API_URL, {
+                const res = await fetch(WORKER_URL, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(payload)
                 });
-                
                 const json = await res.json();
+
                 if(json.success) {
                     if(action === 'load') {
-                        if(confirm(`Tìm thấy ${json.data.length} mục. Ghi đè?`)) {
-                            db = json.data;
-                            localStorage.setItem('my_data_store', JSON.stringify(db));
-                            render();
+                        if(json.data && json.data.length > 0) {
+                            if(confirm(`Tìm thấy ${json.data.length} mục. Ghi đè vào máy?`)) {
+                                vault = json.data;
+                                localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
+                                render();
+                                alert("Đồng bộ thành công!");
+                                closeModal('settingsModal');
+                            }
+                        } else {
+                            alert("Không có dữ liệu hoặc sai mã.");
                         }
                     } else {
-                        alert("Đồng bộ thành công!");
+                        alert("Đã lưu lên Cloud!");
                     }
                 } else {
                     alert("Lỗi: " + json.msg);
@@ -367,46 +359,34 @@
             } catch(e) {
                 alert("Lỗi kết nối: " + e.message);
             }
-            btn.innerText = orgTxt;
+            btn.innerHTML = oldHtml;
+            btn.disabled = false;
         }
 
-        // --- RESTORE ---
-        async function restoreFromFile(input) {
-            const file = input.files[0];
-            if(!file) return;
-            const pass = prompt("Nhập mật khẩu file ZIP:");
-            if(!pass) return;
+        async function autoBackup() {
+            const zipPass = localStorage.getItem('zip_pass');
+            if(!zipPass) return;
 
             try {
-                const reader = new zip.ZipReader(new zip.BlobReader(file));
-                const entries = await reader.getEntries();
-                if(entries.length) {
-                    const text = await entries[0].getData(new zip.TextWriter(), { password: pass });
-                    // Simple CSV Parse
-                    const lines = text.split('\n');
-                    const newData = [];
-                    for(let i=1; i<lines.length; i++) {
-                        if(!lines[i].trim()) continue;
-                        // Regex tách CSV
-                        const parts = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
-                        if(parts && parts.length >= 3) {
-                            const cols = parts.map(c => c.replace(/^"|"$/g, ''));
-                            newData.push({
-                                id: Date.now() + i,
-                                n: cols[0], u: cols[1], p: cols[2], nt: cols[3]||'', s: cols[4]||''
-                            });
-                        }
-                    }
-                    if(newData.length && confirm(`Restore ${newData.length} mục?`)) {
-                        db = newData;
-                        localStorage.setItem('my_data_store', JSON.stringify(db));
-                        render();
-                    }
-                }
-                await reader.close();
-            } catch(e) {
-                alert("Sai mật khẩu hoặc lỗi file!");
-            }
+                let csv = "\uFEFFName,ID,Token,Note\n"; 
+                vault.forEach(item => {
+                    const row = [item.name, item.user, item.pass, item.note]
+                        .map(t => `"${String(t||'').replace(/"/g, '""')}"`).join(",");
+                    csv += row + "\n";
+                });
+
+                const blobWriter = new zip.BlobWriter("application/zip");
+                const zipWriter = new zip.ZipWriter(blobWriter, { password: zipPass, encryptionStrength: 3 });
+                await zipWriter.add("safe_data.csv", new zip.TextReader(csv));
+                await zipWriter.close();
+                const blob = blobWriter.getData();
+
+                const fd = new FormData();
+                fd.append('action', 'backup_file');
+                fd.append('file', await blob);
+                
+                await fetch(WORKER_URL, { method: 'POST', body: fd });
+            } catch(e) { console.error("Backup err", e); }
         }
     </script>
 </body>
