@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Note Manager</title> 
+    <title>Access With Me</title> 
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#175DDC">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/zip.js/2.7.29/zip.min.js"></script>
+    
+    <script src="https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js"></script>
 
     <style>
         :root { --primary: #175DDC; --bg: #f2f4f8; --text: #333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 90px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-top: 100px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
         /* HEADER */
         .header { background: var(--primary); padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 10px; }
@@ -20,10 +21,11 @@
         .search-box { width: 100%; padding: 12px 15px 12px 45px; border-radius: 25px; border: none; font-size: 16px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
         .search-box::placeholder { color: rgba(255,255,255,0.7); }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
-        .settings-btn { color: white; font-size: 20px; padding: 10px; cursor: pointer; }
-
-        /* SECURITY DISCLAIMER */
-        .security-banner { background: #fff3cd; color: #856404; padding: 10px 15px; font-size: 12px; margin: 10px 15px 0; border-radius: 8px; border: 1px solid #ffeeba; display: flex; gap: 10px; align-items: center; }
+        
+        /* COUNTER & SETTINGS */
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .counter-badge { background: rgba(255,255,255,0.2); color: white; padding: 5px 10px; border-radius: 12px; font-weight: bold; font-size: 13px; min-width: 20px; text-align: center; }
+        .settings-btn { color: white; font-size: 22px; cursor: pointer; }
 
         /* LIST CARD */
         .container { padding: 10px 15px; }
@@ -43,16 +45,13 @@
         
         .copy-btn { background: white; border: 1px solid #ddd; color: var(--primary); font-weight: 700; font-size: 12px; padding: 6px 12px; border-radius: 6px; min-width: 60px; transition: all 0.2s; }
         .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
-
         .note-row { background: #fff8e1; border: 1px solid #ffe0b2; padding: 10px; border-radius: 8px; font-size: 14px; color: #d35400; margin-bottom: 12px; display: flex; gap: 10px; align-items: flex-start; }
-        .note-icon { margin-top: 2px; }
-
         .link-row { margin-top: 5px; text-align: right; }
         .website-link { font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 500; }
         
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 10px 20px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
 
-        /* MODALS & STATUS */
+        /* MODALS */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
         .modal-content { background: white; width: 85%; border-radius: 20px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popIn 0.2s; max-height: 90vh; overflow-y: auto; }
         .inp-group { margin-bottom: 15px; }
@@ -66,12 +65,14 @@
         .btn-save { background: var(--primary); color: white; }
         .btn-full { width: 100%; margin-bottom: 10px; }
 
-        /* SETTINGS SECTION */
+        /* SETTINGS & INPUT WITH BUTTON */
         .settings-section { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
         .settings-title { font-weight: 700; font-size: 14px; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; }
+        .input-with-btn { display: flex; gap: 8px; }
+        .input-with-btn .inp { flex: 1; }
+        .btn-small { padding: 0 15px; font-size: 13px; border-radius: 8px; border: none; background: #2c3e50; color: white; cursor: pointer; }
 
-        #syncStatus { font-size: 12px; color: #666; text-align: center; margin-top: 5px; min-height: 15px; transition: color 0.3s;}
-
+        #syncStatus { font-size: 12px; color: #666; text-align: center; margin-top: 5px; min-height: 15px; font-weight: 600; }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
@@ -82,14 +83,12 @@
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
         </div>
-        <i class="fas fa-cog settings-btn" onclick="openSettings()"></i>
+        <div class="header-actions">
+            <div class="counter-badge" id="itemCounter">0</div>
+            <i class="fas fa-cog settings-btn" onclick="openSettings()"></i>
+        </div>
     </div>
     
-    <div class="security-banner">
-        <i class="fas fa-shield-alt"></i>
-        <span>Dữ liệu được mã hóa ZIP khi backup.</span>
-    </div>
-
     <div class="container">
         <div id="syncStatus"></div>
         <button id="installBtn" onclick="installPWA()" style="display:none; background:white; color:var(--primary); border:none; padding:8px 15px; border-radius:20px; font-weight:bold; font-size:13px; margin: 15px 0; width:100%; box-shadow:0 2px 5px rgba(0,0,0,0.1); cursor:pointer;"><i class="fas fa-download"></i> CÀI ĐẶT APP</button>
@@ -100,11 +99,11 @@
 
     <div class="modal" id="modal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Chi tiết</h2>
+            <h2 style="margin-top:0; color:var(--primary)">Thêm / Sửa</h2>
             <input type="hidden" id="editId">
             <div class="inp-group">
                 <label>Website / App</label>
-                <input type="text" id="inpWeb" class="inp" placeholder="facebook.com" onblur="autoFillName()">
+                <input type="text" id="inpWeb" class="inp" placeholder="Ví dụ: facebook.com" onblur="autoFillName()">
             </div>
             <div class="inp-group">
                 <label>Tên gợi nhớ</label>
@@ -124,7 +123,7 @@
             </div>
             <div class="btn-row">
                 <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
-                <button class="btn btn-save" onclick="saveData()">Lưu</button>
+                <button class="btn btn-save" onclick="saveData()">Lưu & Backup</button>
             </div>
         </div>
     </div>
@@ -136,18 +135,24 @@
             <div class="settings-section">
                 <div class="settings-title"><i class="fas fa-file-archive"></i> Mật khẩu Backup ZIP</div>
                 <div class="inp-group">
-                    <label>Mật khẩu dùng để giải nén ZIP</label>
-                    <input type="text" id="zipPassInput" class="inp" placeholder="Ví dụ: 123456" onchange="localStorage.setItem('zip_pass', this.value)">
-                    <p style="font-size:11px; color:#d35400; margin-top:5px"><i class="fas fa-exclamation-triangle"></i> Dữ liệu sẽ được tự động nén ZIP với mật khẩu này và gửi về Telegram mỗi khi bạn chỉnh sửa.</p>
+                    <label>Pass giải nén (Bắt buộc để Auto Backup)</label>
+                    <div class="input-with-btn">
+                        <input type="text" id="zipPassInput" class="inp" placeholder="Nhập pass...">
+                        <button class="btn-small" onclick="saveConfig('zip_pass', 'zipPassInput')">Lưu</button>
+                    </div>
+                    <p style="font-size:11px; color:#d35400; margin-top:5px">Khi nhập xong ấn Lưu. Dữ liệu sẽ tự động nén ZIP và gửi Telegram mỗi khi chỉnh sửa.</p>
                 </div>
                 <button class="btn btn-save btn-full" onclick="manualExportZip()"><i class="fas fa-download"></i> Tải Backup ZIP ngay</button>
             </div>
 
             <div class="settings-section">
-                <div class="settings-title"><i class="fas fa-sync"></i> Đồng bộ đám mây</div>
+                <div class="settings-title"><i class="fas fa-cloud"></i> Đồng bộ Cloud</div>
                 <div class="inp-group">
-                    <label>Mật khẩu Sync (Khóa dữ liệu trên Cloud)</label>
-                    <input type="password" id="syncPassInput" class="inp" placeholder="Nhập pass sync...">
+                    <label>Mật khẩu Sync</label>
+                    <div class="input-with-btn">
+                        <input type="password" id="syncPassInput" class="inp" placeholder="Nhập pass sync...">
+                        <button class="btn-small" onclick="saveConfig('sync_pass', 'syncPassInput')">Lưu</button>
+                    </div>
                 </div>
                 <div class="btn-row" style="margin-top:10px">
                     <button class="btn btn-save" onclick="syncCloud('save')">Gửi lên Cloud</button>
@@ -156,8 +161,10 @@
             </div>
 
             <div class="settings-section" style="border:none">
-                 <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Restore từ JSON</button>
-                 <input type="file" id="fileInput" style="display:none" onchange="importData(this)">
+                <div class="settings-title"><i class="fas fa-history"></i> Khôi phục dữ liệu</div>
+                 <button class="btn btn-close btn-full" onclick="document.getElementById('fileInput').click()"><i class="fas fa-file-import"></i> Chọn file ZIP Backup</button>
+                 <input type="file" id="fileInput" style="display:none" onchange="importData(this)" accept=".zip">
+                 <p style="font-size:11px; color:#666; margin-top:5px; text-align:center">Hỗ trợ file ZIP chứa CSV 4 cột hoặc JSON.</p>
             </div>
             
             <div style="margin-top:10px; border-top:1px solid #eee; padding-top:10px">
@@ -167,13 +174,34 @@
     </div>
 
     <script>
-        let vault = JSON.parse(localStorage.getItem('vault_v5')) || [];
-        // Cấu hình zip.js
-        zip.configure({ useWebWorkers: false }); 
-
-        // URL WORKER CỦA BẠN:
+        // --- CẤU HÌNH ---
+        // Thay link worker của bạn vào đây:
         const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
 
+        let vault = JSON.parse(localStorage.getItem('vault_v5')) || [];
+        
+        // --- INIT SAU KHI LOAD TRANG (QUAN TRỌNG CHO PWA) ---
+        window.addEventListener('load', () => {
+            // Cấu hình zip.js không dùng worker rời để tránh lỗi đường dẫn
+            if(window.zip) {
+                zip.configure({ useWebWorkers: false });
+            }
+            
+            // Load mật khẩu đã lưu vào ô input
+            document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
+            document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
+            
+            render();
+            
+            // Đăng ký Service Worker
+            if('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW Registered'))
+                .catch(err => console.error('SW Fail', err));
+            }
+        });
+
+        // --- PWA INSTALL UI ---
         let deferredPrompt; 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -190,32 +218,77 @@
             }
         }
 
-        // --- INIT ---
-        // Load zip pass đã lưu
-        document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
+        // --- CHỨC NĂNG LƯU CONFIG ---
+        function saveConfig(key, elementId) {
+            const val = document.getElementById(elementId).value;
+            if(val) {
+                localStorage.setItem(key, val);
+                alert("Đã lưu mật khẩu thành công!");
+            } else {
+                alert("Vui lòng nhập nội dung!");
+            }
+        }
 
-        // --- AUTOMATION: AUTO BACKUP ZIP ---
+        // --- CORE: TẠO FILE ZIP (CSV HOẶC JSON) ---
+        async function createEncryptedZipBlob(data, password, format = 'csv') {
+            if (typeof zip === 'undefined') throw new Error("Thư viện ZIP chưa tải xong. Vui lòng reload.");
+            
+            const blobWriter = new zip.BlobWriter("application/zip");
+            const zipWriter = new zip.ZipWriter(blobWriter, {
+                password: password,
+                encryptionStrength: 3 // AES-256
+            });
+
+            let content = "";
+            let filename = "";
+
+            if (format === 'csv') {
+                // Tạo nội dung CSV 4 cột: Name, User, Pass, Note
+                // Thêm BOM để Excel đọc đúng tiếng Việt
+                content = "\uFEFFName,Username,Password,Note\n"; 
+                data.forEach(item => {
+                    // Escape dấu phẩy và ngoặc kép
+                    const row = [
+                        item.name || "",
+                        item.user || "",
+                        item.pass || "",
+                        item.note || ""
+                    ].map(t => `"${String(t).replace(/"/g, '""')}"`).join(",");
+                    content += row + "\n";
+                });
+                filename = "data.csv";
+            } else {
+                content = JSON.stringify(data, null, 2);
+                filename = "vault_data.json";
+            }
+
+            await zipWriter.add(filename, new zip.TextReader(content));
+            await zipWriter.close();
+            
+            return blobWriter.getData();
+        }
+
+        // --- AUTO BACKUP ---
         async function autoBackupToTelegram() {
-            const zipPass = document.getElementById('zipPassInput').value;
+            const zipPass = localStorage.getItem('zip_pass');
             const statusEl = document.getElementById('syncStatus');
             
             if (!zipPass) {
-                statusEl.innerText = "⚠️ Chưa cài mật khẩu ZIP. Không thể backup tự động.";
+                statusEl.innerText = "⚠️ Chưa cài pass ZIP -> Chưa backup tự động.";
                 statusEl.style.color = "#d35400";
                 return;
             }
 
-            statusEl.innerText = "Đang nén ZIP và gửi Telegram...";
+            statusEl.innerText = "Đang nén và gửi backup...";
             statusEl.style.color = "#2980b9";
 
             try {
-                // 1. Tạo file ZIP có pass
-                const blob = await createEncryptedZipBlob(vault, zipPass);
+                // Tạo ZIP chứa file CSV để đúng yêu cầu "y như file backup"
+                const blob = await createEncryptedZipBlob(vault, zipPass, 'csv');
                 
-                // 2. Gửi file blob lên Worker
                 const formData = new FormData();
                 formData.append('file', blob, 'backup.zip');
-                formData.append('action', 'backup_file'); // Action mới cho worker
+                formData.append('action', 'backup_file');
 
                 const res = await fetch(WORKER_URL, {
                     method: 'POST',
@@ -223,57 +296,109 @@
                 });
 
                 if (res.ok) {
-                    statusEl.innerText = "✅ Đã gửi backup ZIP về Telegram lúc " + new Date().toLocaleTimeString();
+                    statusEl.innerText = "✅ Backup an toàn lúc " + new Date().toLocaleTimeString();
                     statusEl.style.color = "#27ae60";
                 } else {
-                    throw new Error("Server error");
+                    statusEl.innerText = "❌ Lỗi gửi backup";
+                    statusEl.style.color = "red";
                 }
             } catch (err) {
                 console.error(err);
-                statusEl.innerText = "❌ Lỗi backup tự động";
+                statusEl.innerText = "❌ Lỗi: " + err.message;
                 statusEl.style.color = "red";
             }
         }
 
-        // --- ZIP LOGIC (ENCRYPTION) ---
-        async function createEncryptedZipBlob(data, password) {
-            const jsonStr = JSON.stringify(data, null, 2);
-            
-            // Dùng thư viện zip.js
-            const blobWriter = new zip.BlobWriter("application/zip");
-            const zipWriter = new zip.ZipWriter(blobWriter, {
-                password: password,
-                encryptionStrength: 3 // AES-256
-            });
-
-            // Thêm file data.json vào trong ZIP
-            await zipWriter.add("vault_data.json", new zip.TextReader(jsonStr));
-            await zipWriter.close();
-            
-            return blobWriter.getData();
-        }
-
+        // --- MANUAL EXPORT ---
         async function manualExportZip() {
-            const zipPass = document.getElementById('zipPassInput').value;
-            if(!zipPass) return alert("Vui lòng nhập mật khẩu ZIP trước!");
+            const zipPass = localStorage.getItem('zip_pass');
+            if(!zipPass) return alert("Vui lòng nhập và LƯU mật khẩu ZIP trước!");
             
-            const blob = await createEncryptedZipBlob(vault, zipPass);
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `backup_${new Date().toISOString().slice(0,10)}.zip`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            try {
+                const blob = await createEncryptedZipBlob(vault, zipPass, 'csv');
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `backup_${new Date().toISOString().slice(0,10)}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch(e) {
+                alert("Lỗi tạo file: " + e.message);
+            }
         }
 
-        // --- SYNC CLOUD LOGIC ---
+        // --- RESTORE TỪ FILE ZIP (CHỨA CSV/JSON) ---
+        async function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const zipPass = prompt("Nhập mật khẩu để giải nén file Backup:");
+            if (!zipPass) return;
+
+            try {
+                const reader = new zip.ZipReader(new zip.BlobReader(file));
+                const entries = await reader.getEntries();
+                
+                if (entries.length) {
+                    // Lấy file đầu tiên trong ZIP
+                    const entry = entries[0];
+                    // Giải nén ra text
+                    const text = await entry.getData(new zip.TextWriter(), { password: zipPass });
+                    
+                    let newData = [];
+
+                    if (entry.filename.endsWith('.json')) {
+                         newData = JSON.parse(text);
+                    } else {
+                        // Parse CSV thủ công (4 cột: Name, User, Pass, Note)
+                        const lines = text.split('\n');
+                        // Bỏ qua dòng header nếu có
+                        const startIdx = lines[0].includes('Name,Username') ? 1 : 0;
+                        
+                        for(let i = startIdx; i < lines.length; i++) {
+                            const line = lines[i].trim();
+                            if(!line) continue;
+                            
+                            // Regex tách CSV cơ bản (chấp nhận giá trị trong ngoặc kép)
+                            const parts = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+                            // Fallback đơn giản nếu regex fail
+                            const cols = line.split(',').map(c => c.replace(/^"|"$/g, '')); 
+                            
+                            if(cols.length >= 3) {
+                                newData.push({
+                                    id: Date.now() + i,
+                                    name: cols[0],
+                                    user: cols[1],
+                                    pass: cols[2],
+                                    note: cols[3] || "",
+                                    web: "" // CSV ko có cột web, để trống
+                                });
+                            }
+                        }
+                    }
+
+                    if (newData.length > 0 && confirm(`Tìm thấy ${newData.length} mục. Ghi đè dữ liệu hiện tại?`)) {
+                        vault = newData;
+                        saveVault(false); // Lưu nhưng ko trigger backup loop
+                        alert("Restore thành công!");
+                        closeModal('settingsModal');
+                    }
+                }
+                await reader.close();
+            } catch (err) {
+                console.error(err);
+                alert("Lỗi Restore: Sai mật khẩu hoặc file lỗi.\n" + err.message);
+            }
+        }
+
+        // --- SYNC CLOUD ---
         async function syncCloud(action) {
-            const syncPass = document.getElementById('syncPassInput').value;
-            if(!syncPass) return alert("Chưa nhập mật khẩu Sync!");
+            const syncPass = localStorage.getItem('sync_pass');
+            if(!syncPass) return alert("Vui lòng nhập và LƯU mật khẩu Sync trước!");
             
             const statusEl = document.getElementById('syncStatus');
-            statusEl.innerText = "Đang đồng bộ...";
+            statusEl.innerText = "Đang kết nối Cloud...";
 
             try {
                 const payload = {
@@ -294,7 +419,7 @@
                     if(action === 'load') {
                         if(confirm(`Tìm thấy ${json.data.length} mục trên Cloud. Ghi đè máy này?`)) {
                             vault = json.data;
-                            saveVault(false); // Lưu local, không trigger backup loop
+                            saveVault(false); 
                             alert("Đồng bộ về máy thành công!");
                         }
                     } else {
@@ -302,18 +427,21 @@
                     }
                     statusEl.innerText = "";
                 } else {
-                    alert("Lỗi: " + json.msg);
+                    alert("Lỗi Server: " + json.msg);
+                    statusEl.innerText = "";
                 }
             } catch(e) {
-                alert("Lỗi kết nối Server");
+                console.error(e);
+                alert("Lỗi kết nối: Có thể do CORS hoặc mạng.");
+                statusEl.innerText = "";
             }
         }
 
-        // --- CORE FUNCTIONS ---
+        // --- UI & LOGIC CƠ BẢN ---
         function getFavicon(url) {
             if (!url) return 'https://cdn-icons-png.flaticon.com/512/2889/2889676.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
-            return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+            return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
         }
 
         function autoFillName() {
@@ -329,8 +457,13 @@
             const q = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
             list.innerHTML = '';
+            
+            const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q));
+            
+            // Update counter
+            document.getElementById('itemCounter').innerText = vault.length;
 
-            vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q)).forEach(item => {
+            filtered.forEach(item => {
                 let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
                 let noteHtml = item.note ? `<div class="note-row"><i class="fas fa-sticky-note note-icon"></i> <span>${item.note}</span></div>` : '';
 
@@ -363,7 +496,7 @@
                         </div>
                         ${noteHtml}
                         <div class="link-row">
-                            <a href="${fullLink}" target="_blank" class="website-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
+                            <a href="${fullLink}" target="_blank" class="website-link">Truy cập <i class="fas fa-external-link-alt"></i></a>
                         </div>
                     </div>
                 `;
@@ -384,7 +517,7 @@
         function copy(btn, text) {
             navigator.clipboard.writeText(text);
             const originalText = btn.innerText;
-            btn.innerText = "ĐÃ CHÉP";
+            btn.innerText = "OK";
             btn.classList.add('copied');
             setTimeout(() => { btn.innerText = originalText; btn.classList.remove('copied'); }, 1500);
         }
@@ -425,48 +558,22 @@
             } else {
                 vault.unshift(data);
             }
-            saveVault(true); // Trigger auto backup
+            saveVault(true); 
             closeModal('modal');
         }
 
         function deleteItem(id) {
             if(confirm('Xóa mục này?')) {
                 vault = vault.filter(i => i.id !== id);
-                saveVault(true); // Trigger auto backup
+                saveVault(true); 
             }
         }
 
         function saveVault(shouldSync = false) {
             localStorage.setItem('vault_v5', JSON.stringify(vault));
             render();
-            if(shouldSync) {
-                autoBackupToTelegram();
-            }
+            if(shouldSync) autoBackupToTelegram();
         }
-        
-        function importData(input) {
-            const file = input.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data)) {
-                        if(confirm(`Tìm thấy ${data.length} mục. Ghi đè?`)) {
-                            vault = data.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-                            saveVault(false); 
-                            alert("Restore thành công!");
-                            closeModal('settingsModal');
-                        }
-                    }
-                } catch (err) { alert("Lỗi file JSON!"); }
-            };
-            reader.readAsText(file);
-        }
-
-        render();
-        // Sửa đường dẫn đăng ký SW cho chuẩn
-        if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
     </script>
 </body>
 </html>
