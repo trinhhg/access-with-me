@@ -1,5 +1,5 @@
-const CACHE_NAME = 'vault-ultra-v3';
-const URLS_TO_CACHE = [
+const CACHE_NAME = 'vault-final-v5';
+const ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
@@ -8,56 +8,42 @@ const URLS_TO_CACHE = [
   'https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js'
 ];
 
-// 1. INSTALL: Tải hết tài nguyên về cache
 self.addEventListener('install', event => {
-  self.skipWaiting(); // Kích hoạt ngay lập tức
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(URLS_TO_CACHE);
-      })
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
 });
 
-// 2. ACTIVATE: Xóa cache cũ
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then(keys => Promise.all(
+      keys.map(key => {
+        if (key !== CACHE_NAME) return caches.delete(key);
+      })
+    ))
   );
   self.clients.claim();
 });
 
-// 3. FETCH: Network First (Ưu tiên mạng mới nhất, lỗi thì lấy cache)
 self.addEventListener('fetch', event => {
-  // Chỉ xử lý request GET
-  if (event.request.method !== 'GET') return;
+  // Bỏ qua các request POST (Sync/Backup) hoặc chrome-extension
+  if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
 
   event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        // Nếu tải được từ mạng, copy vào cache để dùng lần sau
-        if (!response || response.status !== 200 || response.type !== 'basic' && !event.request.url.startsWith('http')) {
-          return response;
-        }
-        const responseToCache = response.clone();
-        caches.open(CACHE_NAME)
-          .then(cache => {
-            cache.put(event.request, responseToCache);
-          });
-        return response;
-      })
-      .catch(() => {
-        // Nếu mất mạng, lấy từ cache
-        return caches.match(event.request);
-      })
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(event.request).then(response => {
+        // Fetch từ mạng để cập nhật cache cho lần sau
+        const fetchPromise = fetch(event.request).then(networkResponse => {
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {}); // Lỗi mạng thì bỏ qua
+
+        // Nếu có cache thì trả về ngay, không thì đợi mạng
+        return response || fetchPromise;
+      });
+    })
   );
 });
