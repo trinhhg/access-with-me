@@ -6,81 +6,86 @@
     <title>Vault Safe</title> 
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#175DDC">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <script src="https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js"></script>
 
     <style>
         :root { --primary: #175DDC; --bg: #f2f4f8; --card-bg: #ffffff; }
-        body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding-top: 70px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding-top: 60px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* HEADER FIX LOGO */
-        .header { background: var(--primary); padding: 10px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; gap: 12px; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        /* HEADER FIX */
+        .header { background: var(--primary); padding: 8px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); gap: 10px; }
         
-        .header-logo { width: 32px; height: 32px; object-fit: contain; flex-shrink: 0; }
+        /* Logo Bitwarden giữ nguyên tỉ lệ, không bị méo */
+        .header-logo { width: 28px; height: 28px; flex-shrink: 0; fill: white; }
         
-        .search-container { flex: 1; position: relative; }
-        .search-box { width: 100%; padding: 10px 15px 10px 38px; border-radius: 8px; border: none; font-size: 15px; background: rgba(255,255,255,0.2); color: white; outline: none; box-sizing: border-box; backdrop-filter: blur(5px); }
-        .search-box::placeholder { color: rgba(255,255,255,0.8); }
-        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.8); font-size: 14px; }
-        .header-btn { color: white; font-size: 20px; cursor: pointer; padding: 5px; }
+        /* Search Box đẩy sang phải, tránh đè logo */
+        .search-container { flex: 1; position: relative; display: flex; align-items: center; }
+        .search-box { width: 100%; padding: 10px 10px 10px 35px; border-radius: 8px; border: none; font-size: 14px; background: rgba(255,255,255,0.2); color: white; outline: none; height: 36px; }
+        .search-box::placeholder { color: rgba(255,255,255,0.7); }
+        .search-icon { position: absolute; left: 10px; color: rgba(255,255,255,0.7); font-size: 14px; pointer-events: none; }
+        
+        .header-btn { color: white; font-size: 18px; cursor: pointer; padding: 5px; flex-shrink: 0; }
         
         /* BADGE */
-        .badge { position: absolute; top: 8px; right: 45px; background: #ff4757; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); pointer-events: none; }
+        .badge { position: absolute; top: 5px; right: 40px; background: #ff4757; color: white; font-size: 9px; padding: 2px 5px; border-radius: 10px; font-weight: bold; pointer-events: none; }
 
         /* LIST CARD */
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
         
-        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #f0f0f0; }
-        .brand-info { display: flex; align-items: center; gap: 12px; }
-        .brand-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: contain; }
-        .brand-name { font-weight: 700; font-size: 17px; color: #333; }
-        .card-actions { display: flex; gap: 15px; }
-        .action-icon { color: #999; font-size: 18px; cursor: pointer; padding: 5px; }
+        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
+        .brand-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+        .brand-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; flex-shrink: 0; }
+        .brand-name { font-weight: 700; font-size: 16px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        .card-actions { display: flex; gap: 10px; flex-shrink: 0; }
+        .action-icon { color: #999; font-size: 16px; cursor: pointer; padding: 5px; }
         .action-icon.del { color: #ff6b6b; }
 
-        .field-group { margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; }
+        .field-group { margin-bottom: 10px; background: #f9f9f9; padding: 8px 10px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; }
         .field-content { flex: 1; overflow: hidden; margin-right: 10px; }
-        .field-label { font-size: 10px; color: #999; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; letter-spacing: 0.5px; }
-        .field-value { font-size: 15px; font-family: 'Roboto Mono', monospace; color: #333; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .field-label { font-size: 9px; color: #999; text-transform: uppercase; margin-bottom: 3px; font-weight: 700; }
+        .field-value { font-size: 14px; font-family: 'Roboto Mono', monospace; color: #333; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        .copy-btn { background: white; border: 1px solid #dee2e6; color: var(--primary); font-weight: 700; font-size: 11px; padding: 6px 12px; border-radius: 6px; min-width: 60px; cursor: pointer; text-transform: uppercase; }
+        .copy-btn { background: white; border: 1px solid #dee2e6; color: var(--primary); font-weight: 700; font-size: 10px; padding: 5px 10px; border-radius: 4px; min-width: 50px; cursor: pointer; }
         .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
         
-        .note-box { background: #fff8e1; color: #d35400; padding: 10px; border-radius: 8px; font-size: 14px; margin-top: 10px; display: flex; align-items: flex-start; gap: 8px; }
-        .web-link { display: block; text-align: right; margin-top: 12px; font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .note-box { background: #fff8e1; color: #d35400; padding: 8px; border-radius: 6px; font-size: 13px; margin-top: 8px; display: flex; gap: 6px; }
+        .web-link { display: block; text-align: right; margin-top: 10px; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; }
 
-        .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 10px 25px rgba(23, 93, 220, 0.4); z-index: 200; cursor: pointer; }
+        .fab { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 8px 20px rgba(23, 93, 220, 0.3); z-index: 200; cursor: pointer; }
 
         /* MODAL */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-content { background: white; width: 85%; max-width: 400px; border-radius: 20px; padding: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: popUp 0.2s ease-out; }
-        .inp-group { margin-bottom: 15px; }
-        .inp-label { display: block; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 5px; }
-        .inp { width: 100%; padding: 12px; border: 1px solid #eee; background: #f8f9fa; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+        .modal-content { background: white; width: 90%; max-width: 380px; border-radius: 16px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popUp 0.15s ease-out; }
+        .inp-group { margin-bottom: 12px; }
+        .inp-label { display: block; font-size: 11px; font-weight: 700; color: #555; margin-bottom: 4px; }
+        .inp { width: 100%; padding: 10px; border: 1px solid #eee; background: #f8f9fa; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; }
         .inp:focus { border-color: var(--primary); background: white; }
         
-        /* SYNC UI FIX */
-        .sync-row { display: flex; gap: 8px; align-items: center; }
+        /* SYNC BUTTONS */
+        .sync-row { display: flex; gap: 5px; }
         .sync-row .inp { flex: 1; }
-        .btn-sync { background: var(--primary); color: white; border: none; height: 45px; padding: 0 15px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 5px; font-size:13px; }
-
+        .btn-action { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 80px; }
+        
         .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 600; font-size: 15px; cursor: pointer; }
+        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; }
         .btn-close { background: #f1f3f5; color: #333; }
         .btn-save { background: var(--primary); color: white; }
         
-        /* OFFLINE INDICATOR */
-        #offline-alert { display:none; background:#333; color:white; font-size:11px; text-align:center; padding:5px; position:fixed; top:50px; width:100%; z-index:999; }
+        #status-bar { position: fixed; top: 60px; left:0; right:0; text-align:center; padding: 5px; font-size: 11px; background: #333; color: white; display: none; z-index:900; }
 
-        @keyframes popUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <svg class="header-logo" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="header-logo" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
             <path d="M25 5C13.9543 5 5 13.9543 5 25C5 36.0457 13.9543 45 25 45C36.0457 45 45 36.0457 45 25C45 13.9543 36.0457 5 25 5ZM14.5 17.5C14.5 16.1193 15.6193 15 17 15H33C34.3807 15 35.5 16.1193 35.5 17.5V32.5C35.5 33.8807 34.3807 35 33 35H17C15.6193 35 14.5 33.8807 14.5 32.5V17.5Z" fill="white" fill-opacity="0.3"/>
             <path d="M18.5 21C18.5 20.1716 19.1716 19.5 20 19.5H30C30.8284 19.5 31.5 20.1716 31.5 21V29C31.5 29.8284 30.8284 30.5 30 30.5H20C19.1716 30.5 18.5 29.8284 18.5 29V21Z" fill="white"/>
         </svg>
@@ -94,17 +99,16 @@
         <i class="fas fa-cog header-btn" onclick="openSettings()"></i>
     </div>
 
-    <div id="offline-alert"><i class="fas fa-wifi"></i> Đang offline. Dữ liệu sẽ tự đồng bộ khi có mạng.</div>
+    <div id="status-bar"></div>
     <div class="container" id="list"></div>
-
     <div class="fab" onclick="openModal()"><i class="fas fa-plus"></i></div>
 
     <div class="modal" id="modal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Thông tin</h2>
+            <h3 style="margin:0 0 15px 0; color:var(--primary)">Thông tin</h3>
             <input type="hidden" id="editId">
             <div class="inp-group">
-                <label class="inp-label">Nguồn (Web/App)</label>
+                <label class="inp-label">Website / App</label>
                 <input type="text" id="inpWeb" class="inp" placeholder="VD: google.com" onblur="autoFillName()">
             </div>
             <div class="inp-group">
@@ -121,7 +125,7 @@
             </div>
             <div class="inp-group">
                 <label class="inp-label">Ghi chú</label>
-                <textarea id="inpNote" class="inp" style="height:80px; resize:none"></textarea>
+                <textarea id="inpNote" class="inp" style="height:60px; resize:none"></textarea>
             </div>
             <div class="btn-row">
                 <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
@@ -132,18 +136,19 @@
 
     <div class="modal" id="settingsModal">
         <div class="modal-content">
-            <h2 style="margin-top:0; color:var(--primary)">Cài đặt</h2>
+            <h3 style="margin:0 0 15px 0; color:var(--primary)">Cài đặt</h3>
             
             <div class="inp-group">
                 <label class="inp-label">Đồng bộ Cloud (Sync)</label>
                 <div class="sync-row">
-                    <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync...">
-                    <button class="btn-sync" onclick="manualSyncLoad(this)"><i class="fas fa-cloud-download-alt"></i> TẢI VỀ</button>
+                    <input type="password" id="syncPassInput" class="inp" placeholder="Nhập pass sync...">
+                    <button class="btn-action" onclick="handleSyncBtn(this, 'load')"><i class="fas fa-cloud-download-alt"></i> TẢI VỀ</button>
                 </div>
-                <p style="font-size:11px; color:#666; margin-top:5px">Nhập mã và ấn Tải về để đồng bộ. Khi đã có mã, mọi thay đổi sẽ <b>tự động</b> sync.</p>
             </div>
             
-            <button class="btn btn-close" style="width:100%" onclick="manualSyncSave(this)"><i class="fas fa-cloud-upload-alt"></i> Gửi thủ công lên Cloud</button>
+            <button class="btn btn-close" style="width:100%; display:flex; justify-content:center; align-items:center; gap:5px" onclick="handleSyncBtn(this, 'save')">
+                <i class="fas fa-cloud-upload-alt"></i> Gửi thủ công lên Cloud
+            </button>
 
             <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
 
@@ -151,9 +156,9 @@
                 <label class="inp-label">Mật khẩu Backup ZIP (Telegram)</label>
                 <div class="sync-row">
                      <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén...">
-                     <button class="btn-sync" style="background:#333" onclick="saveZipPass(this)">LƯU</button>
+                     <button class="btn-action" style="background:#333" onclick="saveZipPass(this)">LƯU</button>
                 </div>
-                <p style="font-size:11px; color:#d35400; margin-top:5px">Lưu pass xong sẽ tự động gửi backup ngay.</p>
+                <p style="font-size:10px; color:#d35400; margin-top:5px">Lưu xong sẽ tự gửi backup ngay lập tức.</p>
             </div>
 
             <button class="btn btn-close" style="width:100%; margin-top:10px" onclick="closeModal('settingsModal')">Đóng</button>
@@ -162,9 +167,8 @@
 
     <script>
         const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
-        let vault = JSON.parse(localStorage.getItem('vault_safe_v1')) || [];
+        let vault = JSON.parse(localStorage.getItem('vault_final_v1')) || [];
         
-        // --- INIT ---
         window.addEventListener('load', () => {
             if(window.zip) zip.configure({ useWebWorkers: false });
             
@@ -172,39 +176,37 @@
             document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
             
             render();
-            checkOffline();
+            checkNet();
             
-            // XỬ LÝ PWA NGHIÊM NGẶT
             if('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
-                .then(reg => {
-                    console.log('SW Registered Scope:', reg.scope);
-                    // Ép update SW nếu có thay đổi
-                    if (reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
-                })
-                .catch(e => console.error('SW Fail:', e));
+                .then(() => console.log("SW OK"))
+                .catch(console.error);
             }
         });
 
-        // Offline Listener
-        window.addEventListener('online', () => { 
-            checkOffline(); 
-            processQueue(); 
-        });
-        window.addEventListener('offline', checkOffline);
+        window.addEventListener('online', checkNet);
+        window.addEventListener('offline', checkNet);
 
-        function checkOffline() {
-            document.getElementById('offline-alert').style.display = navigator.onLine ? 'none' : 'block';
+        function checkNet() {
+            const bar = document.getElementById('status-bar');
+            if(!navigator.onLine) {
+                bar.innerText = "Đang Offline. Dữ liệu sẽ được lưu vào hàng đợi.";
+                bar.style.display = 'block';
+            } else {
+                bar.style.display = 'none';
+                processQueue();
+            }
         }
 
         async function processQueue() {
-            if(localStorage.getItem('pending_sync')) {
-                await autoSync();
-                localStorage.removeItem('pending_sync');
+            if(localStorage.getItem('queue_sync')) {
+                await performSync('save', localStorage.getItem('sync_pass'), true);
+                localStorage.removeItem('queue_sync');
             }
-            if(localStorage.getItem('pending_backup')) {
-                await autoBackup();
-                localStorage.removeItem('pending_backup');
+            if(localStorage.getItem('queue_backup')) {
+                await performBackup(true);
+                localStorage.removeItem('queue_backup');
             }
         }
 
@@ -253,7 +255,7 @@
                             <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
                         </div>
                         ${item.note ? `<div class="note-box"><i class="fas fa-sticky-note"></i> <span>${item.note}</span></div>` : ''}
-                        <a href="${fullLink}" target="_blank" class="web-link">Truy cập Website <i class="fas fa-external-link-alt"></i></a>
+                        <a href="${fullLink}" target="_blank" class="web-link">Truy cập <i class="fas fa-external-link-alt"></i></a>
                     </div>
                 `;
             });
@@ -327,110 +329,27 @@
                 vault.unshift(item);
             }
             
-            finalizeChange();
+            triggerAutoSystems();
             closeModal('modal');
         }
 
         function deleteItem(id) {
             if(confirm("Xóa mục này?")) {
                 vault = vault.filter(i => i.id !== id);
-                finalizeChange();
+                triggerAutoSystems();
             }
         }
 
-        // Hàm chung khi có thay đổi dữ liệu
-        function finalizeChange() {
-            localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
+        function triggerAutoSystems() {
+            localStorage.setItem('vault_final_v1', JSON.stringify(vault));
             render();
-            // TRIGGER AUTO
-            autoSync();
-            autoBackup();
-        }
-
-        // --- SYNC LOGIC ---
-        
-        // 1. Manual Sync (Có nút bấm)
-        async function manualSyncSave(btn) {
-            const pass = document.getElementById('syncPassInput').value;
-            if(!pass) return alert("Nhập mật khẩu sync!");
-            localStorage.setItem('sync_pass', pass);
             
-            const oldTxt = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
-            try {
-                await performSync('save', pass);
-                btn.innerHTML = '<i class="fas fa-check"></i> Đã gửi xong!';
-                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
-            } catch(e) {
-                btn.innerHTML = '❌ Lỗi';
-                alert(e.message);
-                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
-            }
-        }
+            // Auto Sync (Silent)
+            const syncPass = localStorage.getItem('sync_pass');
+            if(syncPass) performSync('save', syncPass, true);
 
-        async function manualSyncLoad(btn) {
-            const pass = document.getElementById('syncPassInput').value;
-            if(!pass) return alert("Nhập mật khẩu sync!");
-            localStorage.setItem('sync_pass', pass);
-            
-            const oldTxt = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ...';
-            try {
-                await performSync('load', pass);
-                btn.innerHTML = '<i class="fas fa-check"></i> Xong';
-                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
-                closeModal('settingsModal');
-            } catch(e) {
-                btn.innerHTML = '❌ Lỗi';
-                alert(e.message);
-                setTimeout(()=>btn.innerHTML = oldTxt, 2000);
-            }
-        }
-
-        // 2. Auto Sync (Silent)
-        async function autoSync() {
-            const pass = localStorage.getItem('sync_pass');
-            if(!pass) return; // Chưa cài pass thì thôi
-
-            if(!navigator.onLine) {
-                localStorage.setItem('pending_sync', 'true');
-                return;
-            }
-
-            try {
-                await performSync('save', pass);
-                console.log("Auto sync success");
-            } catch(e) {
-                console.error("Auto sync fail", e);
-            }
-        }
-
-        // Core Sync Function
-        async function performSync(action, pass) {
-            const payload = {
-                action: action === 'save' ? 'sync_save' : 'sync_load',
-                sync_pass: pass,
-                data: action === 'save' ? vault : null
-            };
-            
-            const res = await fetch(WORKER_URL, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            const json = await res.json();
-            
-            if(!json.success) throw new Error(json.msg);
-            
-            if(action === 'load') {
-                if(json.data && json.data.length > 0) {
-                    vault = json.data;
-                    localStorage.setItem('vault_safe_v1', JSON.stringify(vault));
-                    render();
-                } else {
-                    throw new Error("Không có dữ liệu!");
-                }
-            }
+            // Auto Backup (Silent)
+            performBackup(true);
         }
 
         // --- BACKUP ZIP LOGIC ---
@@ -439,42 +358,41 @@
             if(val) {
                 localStorage.setItem('zip_pass', val);
                 const old = btn.innerText;
-                btn.innerText = "OK";
+                btn.innerText = "LƯU OK";
+                // TRIGGER BACKUP NGAY LẬP TỨC
+                performBackup(true);
                 setTimeout(()=>btn.innerText=old, 1500);
-                // Vừa nhập xong là gửi ngay
-                autoBackup(true); 
             }
         }
 
-        async function autoBackup(force = false) {
+        async function performBackup(isAuto = false) {
             const zipPass = localStorage.getItem('zip_pass');
             if(!zipPass) {
-                // Nếu chưa có pass, đánh dấu để khi nào nhập thì gửi
-                localStorage.setItem('pending_backup', 'true');
+                if(isAuto) localStorage.setItem('queue_backup', 'true');
                 return;
             }
-            
+
             if(!navigator.onLine) {
-                localStorage.setItem('pending_backup', 'true');
+                localStorage.setItem('queue_backup', 'true');
                 return;
             }
 
             try {
-                // Xử lý đếm file CSV
-                const today = new Date().toISOString().slice(0,10);
-                let lastDate = localStorage.getItem('backup_date');
-                let count = parseInt(localStorage.getItem('backup_count') || '0');
+                // LOGIC CSV NAME THEO NGÀY
+                let today = new Date().toLocaleDateString('vi-VN').replace(/\//g,'-');
+                let lastDate = localStorage.getItem('last_backup_date');
+                let count = 1;
                 
-                if(lastDate !== today) {
-                    count = 1;
-                    localStorage.setItem('backup_date', today);
-                } else {
-                    count++;
+                if (lastDate === today) {
+                    count = parseInt(localStorage.getItem('backup_count') || '0') + 1;
                 }
+                
+                localStorage.setItem('last_backup_date', today);
                 localStorage.setItem('backup_count', count);
-                const csvName = `data_lan_${count}.csv`;
+                
+                let fileName = `data_lan_${count}.csv`;
 
-                // Tạo CSV
+                // CREATE CSV
                 let csv = "\uFEFFName,ID,Token,Note\n"; 
                 vault.forEach(item => {
                     const row = [item.name, item.user, item.pass, item.note]
@@ -484,7 +402,7 @@
 
                 const blobWriter = new zip.BlobWriter("application/zip");
                 const zipWriter = new zip.ZipWriter(blobWriter, { password: zipPass, encryptionStrength: 3 });
-                await zipWriter.add(csvName, new zip.TextReader(csv));
+                await zipWriter.add(fileName, new zip.TextReader(csv));
                 await zipWriter.close();
                 const blob = blobWriter.getData();
 
@@ -493,9 +411,69 @@
                 fd.append('file', await blob);
                 
                 await fetch(WORKER_URL, { method: 'POST', body: fd });
-                console.log("Auto backup sent: " + csvName);
-                
-            } catch(e) { console.error("Backup err", e); }
+                console.log("Backup sent: " + fileName);
+
+            } catch(e) {
+                console.error("Backup Fail", e);
+            }
+        }
+
+        // --- SYNC LOGIC ---
+        async function handleSyncBtn(btn, action) {
+            const pass = document.getElementById('syncPassInput').value;
+            if(!pass) return alert("Chưa nhập pass!");
+            localStorage.setItem('sync_pass', pass);
+            
+            // HIỆN STATUS TRONG NÚT
+            const oldTxt = btn.innerHTML;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang tải...`;
+            btn.disabled = true;
+
+            try {
+                await performSync(action, pass, false);
+                btn.innerHTML = `<i class="fas fa-check"></i> Xong!`;
+                if(action === 'load') closeModal('settingsModal');
+            } catch(e) {
+                btn.innerHTML = `❌ Lỗi`;
+                alert(e.message);
+            }
+            
+            setTimeout(() => {
+                btn.innerHTML = oldTxt;
+                btn.disabled = false;
+            }, 2000);
+        }
+
+        async function performSync(action, pass, isAuto) {
+            if(!navigator.onLine) {
+                if(isAuto) localStorage.setItem('queue_sync', 'true');
+                throw new Error("Offline");
+            }
+
+            const payload = {
+                action: action === 'save' ? 'sync_save' : 'sync_load',
+                sync_pass: pass,
+                data: action === 'save' ? vault : null
+            };
+
+            const res = await fetch(WORKER_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            
+            const json = await res.json();
+            if(!json.success) throw new Error(json.msg);
+
+            if(action === 'load') {
+                if(json.data && json.data.length) {
+                    vault = json.data;
+                    localStorage.setItem('vault_final_v1', JSON.stringify(vault));
+                    render();
+                } else {
+                    throw new Error("Không có dữ liệu");
+                }
+            }
         }
     </script>
 </body>
