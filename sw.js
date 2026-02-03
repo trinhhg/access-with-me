@@ -1,11 +1,13 @@
-const CACHE_NAME = 'vault-ultimate-v7'; // Tăng version để trình duyệt cập nhật
+const CACHE_NAME = 'vault-ultimate-v8-fix'; // Tăng version
 const ASSETS = [
+    '/',
     '/index.html',
     '/manifest.json',
-    '/icons/icon-192.png',
-    '/icons/icon-512.png',
+    '/icons/icon-192.png', // Đảm bảo bạn có file này
+    '/icons/icon-512.png', // Đảm bảo bạn có file này
     'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-    'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap' // Cache thêm font mới
+    'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&display=swap',
+    'https://cdnjs.cloudflare.com/ajax/libs/zip.js/2.7.29/zip.min.js' // Cache thêm thư viện ZIP
 ];
 
 self.addEventListener('install', e => {
@@ -21,11 +23,18 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    // Chiến lược: Network First cho API, Cache First cho tài nguyên tĩnh
-    if (e.request.method === 'POST') {
-        return; // Không cache lệnh gửi dữ liệu
+    // FIX QUAN TRỌNG: Chỉ chặn GET request. 
+    // POST request (Gửi backup, Sync) phải đi thẳng ra mạng, không qua Cache.
+    if (e.request.method !== 'GET') {
+        return; 
     }
+
     e.respondWith(
-        caches.match(e.request).then(res => res || fetch(e.request))
+        caches.match(e.request).then(res => {
+            return res || fetch(e.request);
+        }).catch(() => {
+            // Fallback về trang chủ nếu mất mạng và không có cache
+            return caches.match('/index.html');
+        })
     );
 });
