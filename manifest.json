@@ -1,6 +1,6 @@
 {
-  "name": "System Config",
-  "short_name": "SysConf",
+  "name": "Note Manager",
+  "short_name": "My Notes",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
