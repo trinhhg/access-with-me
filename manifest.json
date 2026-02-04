@@ -1,7 +1,8 @@
 {
-  "name": "Vault Safe",
+  "name": "Twister Vault",
   "short_name": "Vault",
-  "start_url": "/index.html",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#175DDC",
   "theme_color": "#175DDC",
