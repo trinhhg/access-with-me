@@ -1,73 +1,83 @@
-const CACHE_NAME = 'vault-pwa-v3-final'; // Đổi tên để trình duyệt biết là phiên bản mới
-const APP_SHELL = [
+const CACHE_NAME = 'vault-offline-v5'; // Đổi tên để ép trình duyệt cập nhật
+const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  // Cache cứng các thư viện này để offline vẫn chạy được
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Roboto:wght@400;500;700&display=swap',
+  'https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js'
 ];
 
-// 1. INSTALL: Chỉ cache những file cốt lõi nhất để tránh lỗi khi cài đặt
-self.addEventListener('install', event => {
-  self.skipWaiting(); // Ép SW kích hoạt ngay lập tức
+// 1. INSTALL: Tải và lưu ngay lập tức các file quan trọng
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('SW: Installing and caching App Shell');
-      return cache.addAll(APP_SHELL);
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log('SW: Đang cache dữ liệu...');
+      return cache.addAll(ASSETS_TO_CACHE);
     })
   );
 });
 
-// 2. ACTIVATE: Xóa các bản cache cũ rác
-self.addEventListener('activate', event => {
+// 2. ACTIVATE: Xóa cache cũ
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then((keyList) => {
       return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('SW: Cleaning old cache', cacheName);
-            return caches.delete(cacheName);
+        keyList.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('SW: Xóa cache cũ', key);
+            return caches.delete(key);
           }
         })
       );
     })
   );
-  self.clients.claim(); // Kiểm soát các clients ngay lập tức
+  self.clients.claim();
 });
 
-// 3. FETCH: Chiến lược Stale-While-Revalidate (Ưu tiên cache, tự cập nhật ngầm)
-self.addEventListener('fetch', event => {
+// 3. FETCH: Xử lý request
+self.addEventListener('fetch', (event) => {
   const req = event.request;
   const url = new URL(req.url);
 
-  // QUAN TRỌNG: Bỏ qua request POST (API Worker) và Chrome Extension
-  // Để trình duyệt tự xử lý, SW không can thiệp -> Tránh lỗi "undefined response"
-  if (req.method !== 'GET' || url.protocol.startsWith('chrome-extension')) {
-    return;
+  // QUAN TRỌNG: Nếu là API gửi lên Cloudflare Worker (Backup/Sync) -> LUÔN DÙNG MẠNG (Không cache)
+  if (req.method !== 'GET' || url.hostname.includes('workers.dev')) {
+    return; // Để mặc định cho trình duyệt xử lý, SW không can thiệp
   }
 
-  // Xử lý các request GET (HTML, CSS, JS, Images)
+  // Với các file tĩnh (HTML, JS, CSS): Ưu tiên lấy từ Cache
   event.respondWith(
-    caches.open(CACHE_NAME).then(async cache => {
-      // B1: Thử tìm trong cache trước
-      const cachedResponse = await cache.match(req);
-      
-      // B2: Tạo promise để fetch từ mạng và cập nhật cache (chạy ngầm)
-      const fetchPromise = fetch(req).then(networkResponse => {
-        // Chỉ cache nếu response OK (status 200) và là loại cơ bản hoặc cors
-        if (networkResponse && networkResponse.status === 200) {
-          // Clone response vì nó chỉ đọc được 1 lần
-          cache.put(req, networkResponse.clone());
-        }
-        return networkResponse;
-      }).catch(err => {
-        // Lỗi mạng (Offline) -> bỏ qua
-        console.log('SW: Fetch failed (Offline mode)', req.url);
-      });
+    caches.match(req).then((cachedResponse) => {
+      // 1. Nếu có trong cache -> Trả về ngay (Nhanh, chạy được offline)
+      if (cachedResponse) {
+        return cachedResponse;
+      }
 
-      // B3: Logic trả về:
-      // - Nếu có cache: Trả về cache ngay (nhanh), mạng sẽ tự update cache sau.
-      // - Nếu chưa có cache: Chờ tải từ mạng.
-      // - Nếu mất mạng và không có cache: Trả về trang chủ (fallback).
-      return cachedResponse || await fetchPromise || await cache.match('/index.html');
+      // 2. Nếu không có -> Tải từ mạng
+      return fetch(req)
+        .then((networkResponse) => {
+          // Kiểm tra nếu tải lỗi hoặc không phải file hợp lệ thì trả về luôn
+          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic' && networkResponse.type !== 'cors') {
+            return networkResponse;
+          }
+
+          // 3. Nếu tải thành công -> Lưu vào cache cho lần sau
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(req, responseToCache);
+          });
+
+          return networkResponse;
+        })
+        .catch(() => {
+          // 4. Nếu mất mạng và không có trong cache (Lỗi Offline)
+          // Nếu người dùng đang cố vào trang chủ -> Trả về index.html từ cache
+          if (req.headers.get('accept').includes('text/html')) {
+            return caches.match('/index.html');
+          }
+        });
     })
   );
 });
