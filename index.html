@@ -16,23 +16,23 @@
         :root { --primary: #175DDC; --bg: #f2f4f8; --card-bg: #ffffff; }
         body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding-top: 60px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
         
-        /* HEADER UPDATED */
+        /* HEADER FIX */
         .header { background: var(--primary); padding: 8px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); gap: 15px; }
         
-        /* SEARCH BOX TINH CHỈNH: Gọn gàng, bo tròn, không bị phình */
+        /* SEARCH BOX */
         .search-container { flex: 1; position: relative; display: flex; align-items: center; }
         .search-box { 
             width: 100%; 
-            height: 36px; /* Chiều cao cố định để không bị phình */
-            padding: 0 15px 0 40px; /* Padding trái phải, Top/Bottom để 0 để dùng line-height căn giữa */
-            border-radius: 20px; /* Bo tròn vừa đủ (pill shape) */
+            height: 36px; 
+            padding: 0 15px 0 40px; 
+            border-radius: 20px; 
             border: none; 
             font-size: 14px; 
             background: rgba(255,255,255,0.2); 
             color: white; 
             outline: none; 
             transition: background 0.2s;
-            line-height: normal; /* Fix lỗi chữ bị lệch trên một số trình duyệt */
+            line-height: normal; 
         }
         .search-box:focus { background: rgba(255,255,255,0.3); }
         .search-box::placeholder { color: rgba(255,255,255,0.7); }
@@ -95,6 +95,11 @@
 <body>
 
     <div class="header">
+        <svg class="header-logo" style="width:28px; height:28px; flex-shrink:0; fill:white;" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+            <path d="M25 5C13.9543 5 5 13.9543 5 25C5 36.0457 13.9543 45 25 45C36.0457 45 45 36.0457 45 25C45 13.9543 36.0457 5 25 5ZM14.5 17.5C14.5 16.1193 15.6193 15 17 15H33C34.3807 15 35.5 16.1193 35.5 17.5V32.5C35.5 33.8807 34.3807 35 33 35H17C15.6193 35 14.5 33.8807 14.5 32.5V17.5Z" fill="white" fill-opacity="0.3"/>
+            <path d="M18.5 21C18.5 20.1716 19.1716 19.5 20 19.5H30C30.8284 19.5 31.5 20.1716 31.5 21V29C31.5 29.8284 30.8284 30.5 30 30.5H20C19.1716 30.5 18.5 29.8284 18.5 29V21Z" fill="white"/>
+        </svg>
+
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
@@ -183,10 +188,39 @@
             render();
             checkNet();
             
-            if('serviceWorker' in navigator) {
+            // --- PWA REGISTRATION (FIXED & STRONG) ---
+            if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log("SW OK"))
-                .catch(console.error);
+                .then(registration => {
+                    console.log('SW Registered:', registration.scope);
+                    
+                    // Nếu có SW đang chờ (do cập nhật mới), ép kích hoạt ngay
+                    if (registration.waiting) {
+                        registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                    }
+                    
+                    // Lắng nghe sự kiện phát hiện bản cập nhật mới
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed') {
+                                if (navigator.serviceWorker.controller) {
+                                    // Có nội dung mới, ép update
+                                    console.log('New update available.');
+                                }
+                            }
+                        };
+                    };
+                })
+                .catch(err => console.error('SW Registration Failed:', err));
+
+                // Khi SW mới chiếm quyền điều khiển -> Reload trang để áp dụng cache mới
+                let refreshing;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (refreshing) return;
+                    window.location.reload();
+                    refreshing = true;
+                });
             }
         });
 
