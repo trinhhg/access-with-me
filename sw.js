@@ -1,52 +1,73 @@
-const CACHE_NAME = 'vault-fix-cors-v1';
-const ASSETS = [
+const CACHE_NAME = 'vault-pwa-v3-final'; // Đổi tên để trình duyệt biết là phiên bản mới
+const APP_SHELL = [
   '/',
   '/index.html',
-  '/manifest.json',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Roboto:wght@400;500;700&display=swap',
-  'https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js'
+  '/manifest.json'
 ];
 
+// 1. INSTALL: Chỉ cache những file cốt lõi nhất để tránh lỗi khi cài đặt
 self.addEventListener('install', event => {
-  self.skipWaiting();
+  self.skipWaiting(); // Ép SW kích hoạt ngay lập tức
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('SW: Installing and caching App Shell');
+      return cache.addAll(APP_SHELL);
+    })
   );
 });
 
+// 2. ACTIVATE: Xóa các bản cache cũ rác
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.map(key => {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      })
-    ))
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('SW: Cleaning old cache', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
-  self.clients.claim();
+  self.clients.claim(); // Kiểm soát các clients ngay lập tức
 });
 
+// 3. FETCH: Chiến lược Stale-While-Revalidate (Ưu tiên cache, tự cập nhật ngầm)
 self.addEventListener('fetch', event => {
-  const url = event.request.url;
+  const req = event.request;
+  const url = new URL(req.url);
 
-  // QUAN TRỌNG: Nếu request gửi đến Worker API (doicucden) -> BỎ QUA, KHÔNG CACHE
-  if (url.includes('workers.dev') || event.request.method === 'POST') {
-    return; 
+  // QUAN TRỌNG: Bỏ qua request POST (API Worker) và Chrome Extension
+  // Để trình duyệt tự xử lý, SW không can thiệp -> Tránh lỗi "undefined response"
+  if (req.method !== 'GET' || url.protocol.startsWith('chrome-extension')) {
+    return;
   }
 
-  // Chỉ cache các file tĩnh (GET)
+  // Xử lý các request GET (HTML, CSS, JS, Images)
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).then(networkRes => {
-         // Cache lại font và thư viện zip nếu tải từ mạng
-         if(networkRes.ok && (url.startsWith('http'))) {
-             const clone = networkRes.clone();
-             caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
-         }
-         return networkRes;
+    caches.open(CACHE_NAME).then(async cache => {
+      // B1: Thử tìm trong cache trước
+      const cachedResponse = await cache.match(req);
+      
+      // B2: Tạo promise để fetch từ mạng và cập nhật cache (chạy ngầm)
+      const fetchPromise = fetch(req).then(networkResponse => {
+        // Chỉ cache nếu response OK (status 200) và là loại cơ bản hoặc cors
+        if (networkResponse && networkResponse.status === 200) {
+          // Clone response vì nó chỉ đọc được 1 lần
+          cache.put(req, networkResponse.clone());
+        }
+        return networkResponse;
+      }).catch(err => {
+        // Lỗi mạng (Offline) -> bỏ qua
+        console.log('SW: Fetch failed (Offline mode)', req.url);
       });
-    }).catch(() => {
-        // Fallback offline (nếu cần)
+
+      // B3: Logic trả về:
+      // - Nếu có cache: Trả về cache ngay (nhanh), mạng sẽ tự update cache sau.
+      // - Nếu chưa có cache: Chờ tải từ mạng.
+      // - Nếu mất mạng và không có cache: Trả về trang chủ (fallback).
+      return cachedResponse || await fetchPromise || await cache.match('/index.html');
     })
   );
 });
