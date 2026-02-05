@@ -3,245 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vault Safe</title> 
+    <title>Twister Vault</title> 
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#175DDC">
+    <meta name="theme-color" content="#ffffff">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@zip.js/zip.js@2.7.34/dist/zip.min.js"></script>
 
     <style>
-        :root { --primary: #175DDC; --bg: #f2f4f8; --card-bg: #ffffff; }
-        body { font-family: 'Roboto', sans-serif; background: var(--bg); margin: 0; padding-top: 60px; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; user-select: none; }
+        :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --success: #22c55e; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         
-        /* HEADER FIX */
-        .header { background: var(--primary); padding: 8px 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; display: flex; align-items: center; height: 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); gap: 15px; }
+        /* --- LOCK SCREEN --- */
+        #lock-screen { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); transition: opacity 0.3s; }
+        .lock-icon { font-size: 50px; color: var(--primary); margin-bottom: 20px; }
+        .pin-input { font-size: 24px; padding: 10px; text-align: center; width: 150px; border: 2px solid #ddd; border-radius: 12px; letter-spacing: 5px; margin-bottom: 20px; outline: none; }
+        .pin-input:focus { border-color: var(--primary); }
+        .unlock-btn { padding: 12px 30px; background: var(--primary); color: white; border: none; border-radius: 25px; font-weight: 600; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.3); }
         
-        /* SEARCH BOX FULL WIDTH */
-        .search-container { flex: 1; position: relative; display: flex; align-items: center; }
-        .search-box { 
-            width: 100%; 
-            height: 38px; 
-            padding: 0 15px 0 40px; 
-            border-radius: 50px; /* Bo tròn */
-            border: none; 
-            font-size: 15px; 
-            background: rgba(255,255,255,0.2); 
-            color: white; 
-            outline: none; 
-            transition: background 0.2s;
-            line-height: normal; 
-        }
-        .search-box:focus { background: rgba(255,255,255,0.3); }
-        .search-box::placeholder { color: rgba(255,255,255,0.7); }
-        .search-icon { position: absolute; left: 15px; color: rgba(255,255,255,0.8); font-size: 15px; pointer-events: none; }
-        
-        .header-btn { color: white; font-size: 20px; cursor: pointer; padding: 5px; flex-shrink: 0; }
-        
-        /* BADGE */
-        .badge { position: absolute; top: 5px; right: 45px; background: #ff4757; color: white; font-size: 9px; padding: 2px 5px; border-radius: 10px; font-weight: bold; pointer-events: none; }
+        /* BLUR EFFECT WHEN IN BACKGROUND */
+        .blur-app #app-container { filter: blur(15px); pointer-events: none; }
 
-        /* LIST CARD */
-        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        /* --- LAYOUT --- */
+        #app-container { padding-bottom: 80px; min-height: 100vh; transition: filter 0.3s; }
         
-        .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; }
-        .brand-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
-        .brand-logo { width: 32px; height: 32px; border-radius: 6px; object-fit: contain; flex-shrink: 0; }
-        .brand-name { font-weight: 700; font-size: 16px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* HEADER */
+        .top-bar { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; z-index: 100; border-bottom: 1px solid #eee; }
+        .search-wrapper { flex: 1; position: relative; }
+        .search-inp { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: 1px solid #e2e8f0; background: #f1f5f9; font-size: 14px; outline: none; box-sizing: border-box; }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
         
-        .card-actions { display: flex; gap: 10px; flex-shrink: 0; }
-        .action-icon { color: #999; font-size: 16px; cursor: pointer; padding: 5px; }
-        .action-icon.del { color: #ff6b6b; }
+        /* VIEWS */
+        .view { display: none; padding: 15px; animation: fadeIn 0.2s; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .field-group { margin-bottom: 10px; background: #f9f9f9; padding: 8px 10px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; }
-        .field-content { flex: 1; overflow: hidden; margin-right: 10px; }
-        .field-label { font-size: 9px; color: #999; text-transform: uppercase; margin-bottom: 3px; font-weight: 700; }
-        .field-value { font-size: 14px; font-family: 'Roboto Mono', monospace; color: #333; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        /* HOME LIST */
+        .card { background: white; border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; position: relative; transition: transform 0.1s; }
+        .card:active { transform: scale(0.98); }
         
-        .copy-btn { background: white; border: 1px solid #dee2e6; color: var(--primary); font-weight: 700; font-size: 10px; padding: 5px 10px; border-radius: 4px; min-width: 50px; cursor: pointer; }
-        .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .card-brand { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+        .brand-icon { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; background: #f8fafc; }
+        .brand-name { font-weight: 700; font-size: 16px; color: #334155; }
+        .menu-btn { padding: 5px 10px; color: #94a3b8; font-size: 18px; cursor: pointer; }
+
+        .card-body { display: none; padding-top: 10px; border-top: 1px solid #f1f5f9; margin-top: 10px; }
+        .card.expanded .card-body { display: block; }
         
-        .note-box { background: #fff8e1; color: #d35400; padding: 8px; border-radius: 6px; font-size: 13px; margin-top: 8px; display: flex; gap: 6px; }
-        .web-link { display: block; text-align: right; margin-top: 10px; font-size: 12px; color: var(--primary); text-decoration: none; font-weight: 600; }
+        .field-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .field-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .field-val { font-family: 'Roboto Mono', monospace; font-size: 14px; color: #334155; font-weight: 500; }
+        .copy-pill { background: #eff6ff; color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid #dbeafe; }
+        .copy-pill.copied { background: var(--success); color: white; border-color: var(--success); }
 
-        .fab { position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; box-shadow: 0 8px 20px rgba(23, 93, 220, 0.3); z-index: 200; cursor: pointer; }
+        .btn-visit { display: block; width: 100%; text-align: center; padding: 10px; background: #f8fafc; color: var(--primary); text-decoration: none; font-weight: 600; border-radius: 8px; font-size: 13px; margin-top: 10px; border: 1px solid #e2e8f0; }
 
-        /* MODAL */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
-        .modal-content { background: white; width: 90%; max-width: 380px; border-radius: 16px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); animation: popUp 0.15s ease-out; }
-        .inp-group { margin-bottom: 12px; }
-        .inp-label { display: block; font-size: 11px; font-weight: 700; color: #555; margin-bottom: 4px; }
-        .inp { width: 100%; padding: 10px; border: 1px solid #eee; background: #f8f9fa; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; }
+        /* SETTINGS VIEW */
+        .settings-section { background: white; border-radius: 16px; padding: 0 15px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .st-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+        .st-item:last-child { border-bottom: none; }
+        .st-label { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
+        .st-icon { width: 30px; height: 30px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 14px; }
+        .st-val { font-size: 13px; color: #64748b; }
+        .st-btn { color: var(--primary); font-weight: 600; font-size: 13px; cursor: pointer; }
+        .st-btn.danger { color: var(--danger); }
+
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94a3b8; font-size: 11px; font-weight: 600; width: 60px; cursor: pointer; }
+        .nav-item i { font-size: 22px; transition: 0.2s; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item.active i { transform: translateY(-2px); }
+
+        .fab-add { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 8px 25px rgba(37,99,235,0.4); cursor: pointer; transition: transform 0.2s; }
+        .fab-add:active { transform: translateX(-50%) scale(0.9); }
+
+        /* BOTTOM SHEET (MODAL) */
+        .bottom-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; display: flex; align-items: flex-end; }
+        .bottom-sheet.open { visibility: visible; opacity: 1; }
+        .sheet-content { background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 25px; padding-bottom: 40px; animation: slideUp 0.3s; max-height: 85vh; overflow-y: auto; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .inp-group { margin-bottom: 15px; }
+        .inp-label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
+        .inp { width: 100%; padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 10px; font-size: 16px; outline: none; box-sizing: border-box; }
         .inp:focus { border-color: var(--primary); background: white; }
+        .btn-full { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; margin-top: 10px; }
         
-        /* SYNC BUTTONS */
-        .sync-row { display: flex; gap: 5px; }
-        .sync-row .inp { flex: 1; }
-        .btn-action { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 80px; }
-        
-        .btn-row { display: flex; gap: 10px; margin-top: 20px; }
-        .btn { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 600; font-size: 14px; cursor: pointer; }
-        .btn-close { background: #f1f3f5; color: #333; }
-        .btn-save { background: var(--primary); color: white; }
-        
-        #status-bar { position: fixed; top: 60px; left:0; right:0; text-align:center; padding: 5px; font-size: 11px; background: #333; color: white; display: none; z-index:900; }
-        #sync-toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; display: none; z-index: 999; }
-
-        @keyframes popUp { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        /* TOAST */
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="search" class="search-box" placeholder="Tìm kiếm..." oninput="render()">
-        </div>
-        
-        <div class="badge" id="counter">0</div>
-        <i class="fas fa-cog header-btn" onclick="openSettings()"></i>
+    <div id="lock-screen">
+        <i class="fas fa-shield-alt lock-icon"></i>
+        <h3 style="margin:0 0 20px 0; color:#334155">Vault Locked</h3>
+        <input type="password" id="appPin" class="pin-input" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
+        <button class="unlock-btn" onclick="unlockApp()">Mở Khóa</button>
+        <p style="font-size:12px; color:#94a3b8; margin-top:20px" id="lock-msg">Nhập mã PIN ứng dụng để truy cập</p>
     </div>
 
-    <div id="status-bar"></div>
-    <div id="sync-toast"><i class="fas fa-sync fa-spin"></i> Đang cập nhật dữ liệu...</div>
-    <div class="container" id="list"></div>
-    <div class="fab" onclick="openModal()"><i class="fas fa-plus"></i></div>
+    <div id="app-container">
+        
+        <div class="top-bar" id="home-header">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="search" class="search-inp" placeholder="Tìm kiếm tài khoản..." oninput="render()">
+            </div>
+        </div>
 
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <h3 style="margin:0 0 15px 0; color:var(--primary)">Thông tin</h3>
+        <div id="view-home" class="view active">
+            <div id="list"></div>
+            <div id="empty-state" style="text-align:center; margin-top:50px; color:#cbd5e1; display:none;">
+                <i class="fas fa-box-open" style="font-size:60px; margin-bottom:10px"></i>
+                <p>Chưa có dữ liệu</p>
+            </div>
+        </div>
+
+        <div id="view-settings" class="view">
+            <h2 style="margin: 10px 0 20px 0; font-size:24px">Cài đặt</h2>
+            
+            <div class="settings-section">
+                <div class="st-item">
+                    <div class="st-label"><div class="st-icon"><i class="fas fa-key"></i></div> Mã PIN Ứng dụng</div>
+                    <div class="st-btn" onclick="setAppPin()">Đổi mã</div>
+                </div>
+                <div class="st-item">
+                    <div class="st-label"><div class="st-icon"><i class="fas fa-fingerprint"></i></div> Khóa tự động</div>
+                    <div class="st-val">Luôn bật</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="st-item">
+                    <div class="st-label"><div class="st-icon"><i class="fas fa-cloud"></i></div> Đồng bộ Cloud</div>
+                    <div class="st-val" id="last-sync">Chưa đồng bộ</div>
+                </div>
+                <div class="st-item" style="display:block">
+                    <p style="font-size:11px; color:#64748b; margin:0 0 8px 0">Mã Sync (Dùng để tải dữ liệu về máy khác):</p>
+                    <div style="display:flex; gap:10px">
+                        <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync..." style="padding:8px; font-size:13px">
+                        <button class="st-btn" style="background:none; border:none; border:1px solid #eee; padding:0 15px; border-radius:8px" onclick="syncCloud('load')">TẢI VỀ</button>
+                    </div>
+                </div>
+                <div class="st-item" onclick="deleteCloudData()">
+                    <div class="st-label"><div class="st-icon" style="color:#ef4444; background:#fef2f2"><i class="fas fa-trash"></i></div> Xóa dữ liệu Cloud</div>
+                    <div class="st-btn danger">Xóa</div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="st-item" style="display:block">
+                    <div class="st-label" style="margin-bottom:8px"><div class="st-icon"><i class="fas fa-file-archive"></i></div> Mật khẩu Backup ZIP</div>
+                    <p style="font-size:11px; color:#ef4444; margin:0 0 8px 0">*Quan trọng: Dùng để giải nén file ZIP gửi về Tele.</p>
+                    <div style="display:flex; gap:10px">
+                        <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén..." style="padding:8px; font-size:13px">
+                        <button class="st-btn" style="background:#334155; color:white; border:none; padding:8px 15px; border-radius:8px" onclick="saveZipPass()">LƯU</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="st-item">
+                    <div class="st-label"><div class="st-icon"><i class="fas fa-history"></i></div> Lịch sử thay đổi</div>
+                    <div class="st-btn" onclick="alert(JSON.stringify(JSON.parse(localStorage.getItem('vault_history')||'[]'), null, 2))">Xem log</div>
+                </div>
+                <div class="st-item">
+                    <div class="st-label"><div class="st-icon"><i class="fas fa-user-shield"></i></div> Kiểm tra lộ lọt</div>
+                    <a href="https://haveibeenpwned.com/" target="_blank" class="st-btn" style="text-decoration:none">Kiểm tra</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchView('home')">
+            <i class="fas fa-home"></i>
+            <span>Trang chủ</span>
+        </div>
+        <div class="fab-add" onclick="openSheet()">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div class="nav-item" onclick="switchView('settings')">
+            <i class="fas fa-cog"></i>
+            <span>Cài đặt</span>
+        </div>
+    </div>
+
+    <div class="bottom-sheet" id="sheet" onclick="if(event.target===this) closeSheet()">
+        <div class="sheet-content">
+            <h3 style="margin:0 0 20px 0; color:#334155" id="sheet-title">Thêm tài khoản</h3>
             <input type="hidden" id="editId">
+            
             <div class="inp-group">
                 <label class="inp-label">Website / App</label>
-                <input type="text" id="inpWeb" class="inp" placeholder="VD: google.com" onblur="autoFillName()">
+                <input type="text" id="inpWeb" class="inp" placeholder="VD: facebook.com" onblur="autoFillName()">
             </div>
-            <div class="inp-group">
-                <label class="inp-label">Tên hiển thị</label>
-                <input type="text" id="inpName" class="inp">
+            
+            <div class="inp-group" style="display:flex; gap:10px">
+                <div style="flex:1">
+                    <label class="inp-label">Tên hiển thị</label>
+                    <input type="text" id="inpName" class="inp">
+                </div>
+                <div style="flex:1">
+                    <label class="inp-label">Phân loại (Tag)</label>
+                    <input type="text" id="inpTag" class="inp" placeholder="VD: Social, Bank">
+                </div>
             </div>
+
             <div class="inp-group">
-                <label class="inp-label">Tài khoản / ID</label>
+                <label class="inp-label">Tài khoản / Username</label>
                 <input type="text" id="inpUser" class="inp">
             </div>
+
             <div class="inp-group">
-                <label class="inp-label">Mã bảo mật / Token</label>
-                <input type="text" id="inpPass" class="inp">
+                <label class="inp-label">Mật khẩu</label>
+                <div style="display:flex; gap:10px">
+                    <input type="text" id="inpPass" class="inp">
+                    <button style="background:#f1f5f9; border:none; padding:0 15px; border-radius:10px; font-weight:bold; color:var(--primary)" onclick="genPass()">GEN</button>
+                </div>
             </div>
+
             <div class="inp-group">
                 <label class="inp-label">Ghi chú</label>
                 <textarea id="inpNote" class="inp" style="height:60px; resize:none"></textarea>
             </div>
-            <div class="btn-row">
-                <button class="btn btn-close" onclick="closeModal('modal')">Hủy</button>
-                <button class="btn btn-save" onclick="saveData()">Lưu</button>
+
+            <button class="btn-full" onclick="saveData()">Lưu thông tin</button>
+        </div>
+    </div>
+
+    <div class="bottom-sheet" id="menu-sheet" onclick="if(event.target===this) closeMenu()">
+        <div class="sheet-content" style="padding-bottom:30px">
+            <input type="hidden" id="menuId">
+            <h3 style="margin:0 0 15px 0" id="menu-title">Tùy chọn</h3>
+            <div class="st-item" onclick="menuAction('edit')">
+                <div class="st-label"><i class="fas fa-pen" style="color:var(--primary)"></i> Chỉnh sửa</div>
+            </div>
+            <div class="st-item" onclick="menuAction('copy_user')">
+                <div class="st-label"><i class="fas fa-user"></i> Copy Username</div>
+            </div>
+            <div class="st-item" onclick="menuAction('copy_pass')">
+                <div class="st-label"><i class="fas fa-key"></i> Copy Password</div>
+            </div>
+            <div class="st-item" onclick="menuAction('delete')" style="border-bottom:none">
+                <div class="st-label" style="color:var(--danger)"><i class="fas fa-trash"></i> Xóa tài khoản</div>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="settingsModal">
-        <div class="modal-content">
-            <h3 style="margin:0 0 15px 0; color:var(--primary)">Cài đặt</h3>
-            
-            <div class="inp-group">
-                <label class="inp-label">Đồng bộ Cloud (Sync)</label>
-                <div class="sync-row">
-                    <input type="password" id="syncPassInput" class="inp" placeholder="Nhập pass sync...">
-                    <button class="btn-action" onclick="handleSyncBtn(this, 'load')"><i class="fas fa-cloud-download-alt"></i> TẢI VỀ</button>
-                </div>
-                <p style="font-size:10px; color:#666; margin-top:5px">Nhập một lần, lần sau tự động tải khi mở App.</p>
-            </div>
-            
-            <button class="btn btn-close" style="width:100%; display:flex; justify-content:center; align-items:center; gap:5px" onclick="handleSyncBtn(this, 'save')">
-                <i class="fas fa-cloud-upload-alt"></i> Gửi thủ công lên Cloud
-            </button>
-
-            <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
-
-            <div class="inp-group">
-                <label class="inp-label">Mật khẩu Backup ZIP (Telegram)</label>
-                <div class="sync-row">
-                     <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén...">
-                     <button class="btn-action" style="background:#333" onclick="saveZipPass(this)">LƯU</button>
-                </div>
-                <p style="font-size:10px; color:#d35400; margin-top:5px">Lưu xong sẽ tự gửi backup ngay lập tức.</p>
-            </div>
-
-            <button class="btn btn-close" style="width:100%; margin-top:10px" onclick="closeModal('settingsModal')">Đóng</button>
-        </div>
-    </div>
+    <div id="toast" style="display:none"></div>
 
     <script>
         const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
         let vault = JSON.parse(localStorage.getItem('vault_final_v1')) || [];
-        
-        window.addEventListener('load', () => {
-            if(window.zip) zip.configure({ useWebWorkers: false });
-            
+        let historyLog = JSON.parse(localStorage.getItem('vault_history')) || [];
+        let currentPin = localStorage.getItem('app_pin');
+
+        // --- INIT ---
+        window.onload = () => {
+            // Lock Screen Logic
+            if(!currentPin) {
+                document.getElementById('lock-screen').style.display = 'none'; // Chưa set PIN thì vào luôn
+            } else {
+                document.getElementById('lock-screen').style.display = 'flex'; // Có PIN thì khóa
+            }
+
+            // Init Zip
+            try { if(window.zip) zip.configure({ useWebWorkers: false }); } catch(e){}
+
+            // Load Settings
             document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
             document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
-            
+            updateSyncStatus();
+
             render();
-            checkNet();
-            autoSyncOnLoad(); // TỰ ĐỘNG SYNC KHI MỞ WEB
             
-            // PWA Registration
+            // PWA Register
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                .then(reg => {
-                    if (reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-                });
-                navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
+                navigator.serviceWorker.register('/sw.js').then(r=>{if(r.waiting)r.waiting.postMessage({type:'SKIP_WAITING'})});
+                navigator.serviceWorker.addEventListener('controllerchange',()=>window.location.reload());
             }
-        });
+        };
 
-        // TỰ ĐỘNG SYNC KHI CHUYỂN TAB / MỞ LẠI APP
+        // --- SECURITY: AUTO LOCK & BLUR ---
         document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === 'visible') {
-                autoSyncOnLoad();
+            if (document.visibilityState === 'hidden') {
+                // Thoát ra -> Blur ngay
+                document.body.classList.add('blur-app');
+                if(localStorage.getItem('app_pin')) {
+                    document.getElementById('lock-screen').style.display = 'flex';
+                    document.getElementById('appPin').value = '';
+                }
+            } else {
+                // Vào lại -> Check Sync
+                const pass = localStorage.getItem('sync_pass');
+                if(pass && navigator.onLine) performSync('load', pass, true);
             }
         });
 
-        window.addEventListener('online', checkNet);
-        window.addEventListener('offline', checkNet);
-
-        function checkNet() {
-            const bar = document.getElementById('status-bar');
-            if(!navigator.onLine) {
-                bar.innerText = "Đang Offline. Dữ liệu sẽ được lưu vào hàng đợi.";
-                bar.style.display = 'block';
+        function unlockApp() {
+            const pin = document.getElementById('appPin').value;
+            if(pin === localStorage.getItem('app_pin')) {
+                document.getElementById('lock-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.getElementById('lock-screen').style.opacity = '1';
+                    document.body.classList.remove('blur-app');
+                }, 300);
             } else {
-                bar.style.display = 'none';
-                processQueue();
+                showToast('❌ Mã PIN sai!', true);
+                document.getElementById('appPin').value = '';
             }
         }
 
-        async function processQueue() {
-            if(localStorage.getItem('queue_sync')) {
-                await performSync('save', localStorage.getItem('sync_pass'), true);
-                localStorage.removeItem('queue_sync');
-            }
-            if(localStorage.getItem('queue_backup')) {
-                await performBackup(true);
-                localStorage.removeItem('queue_backup');
+        function setAppPin() {
+            const newPin = prompt("Nhập mã PIN mới (4 số) để khóa App:");
+            if(newPin && newPin.length >= 4) {
+                localStorage.setItem('app_pin', newPin);
+                currentPin = newPin;
+                showToast('✅ Đã cài mã PIN bảo vệ');
             }
         }
 
-        // --- CORE API ---
-        async function callWorker(payload, isFile = false) {
-            if(!navigator.onLine) throw new Error("Offline");
-            let options = { method: 'POST' };
-            if (isFile) options.body = payload;
-            else { options.headers = { 'Content-Type': 'application/json' }; options.body = JSON.stringify(payload); }
-
-            const res = await fetch(WORKER_URL, options);
-            if (!res.ok) throw new Error(await res.text());
-            return await res.json();
+        // --- NAVIGATION ---
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('view-' + viewName).classList.add('active');
+            
+            if(viewName === 'home') {
+                document.querySelector('.nav-item:nth-child(1)').classList.add('active');
+                document.getElementById('home-header').style.display = 'flex';
+            } else {
+                document.querySelector('.nav-item:nth-child(3)').classList.add('active');
+                document.getElementById('home-header').style.display = 'none';
+            }
         }
 
-        // --- RENDER & UI ---
+        // --- CORE FUNCTIONS ---
+        function showToast(msg, isError=false) {
+            const t = document.getElementById('toast');
+            t.innerHTML = msg;
+            t.style.background = isError ? '#ef4444' : '#1e293b';
+            t.style.display = 'flex';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+
         function getFavicon(url) {
             if (!url) return 'https://cdn-icons-png.flaticon.com/512/1000/1000997.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
@@ -252,90 +365,94 @@
             const q = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
             list.innerHTML = '';
+            const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.tag||'').toLowerCase().includes(q));
             
-            const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q));
-            document.getElementById('counter').innerText = vault.length;
+            if(filtered.length === 0) document.getElementById('empty-state').style.display = 'block';
+            else document.getElementById('empty-state').style.display = 'none';
 
             filtered.forEach(item => {
                 let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
                 list.innerHTML += `
-                    <div class="card">
-                        <div class="card-top">
-                            <div class="brand-info">
-                                <img src="${getFavicon(item.web)}" class="brand-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
-                                <span class="brand-name">${item.name}</span>
+                    <div class="card" onclick="this.classList.toggle('expanded')">
+                        <div class="card-header">
+                            <div class="card-brand">
+                                <img src="${getFavicon(item.web)}" class="brand-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
+                                <div>
+                                    <div class="brand-name">${item.name}</div>
+                                    <div style="font-size:11px; color:#94a3b8">${item.user} ${item.tag ? '• ' + item.tag : ''}</div>
+                                </div>
                             </div>
-                            <div class="card-actions">
-                                <i class="fas fa-pen action-icon" onclick="openModal(${item.id})"></i>
-                                <i class="fas fa-trash action-icon del" onclick="deleteItem(${item.id})"></i>
-                            </div>
+                            <i class="fas fa-ellipsis-v menu-btn" onclick="openMenu(${item.id}, '${item.name}', event)"></i>
                         </div>
-                        <div class="field-group">
-                            <div class="field-content">
-                                <div class="field-label">TÀI KHOẢN / ID</div>
-                                <div class="field-value">${item.user}</div>
+                        <div class="card-body">
+                            <div class="field-row">
+                                <span class="field-label">Username</span>
+                                <div style="display:flex; gap:10px">
+                                    <span class="field-val">${item.user}</span>
+                                    <span class="copy-pill" onclick="copy('${item.user}', event)">COPY</span>
+                                </div>
                             </div>
-                            <button class="copy-btn" onclick="copy(this, '${item.user}')">COPY</button>
-                        </div>
-                        <div class="field-group">
-                            <div class="field-content">
-                                <div class="field-label">MÃ BẢO MẬT / TOKEN</div>
-                                <div class="field-value">••••••••</div>
+                            <div class="field-row">
+                                <span class="field-label">Password</span>
+                                <div style="display:flex; gap:10px">
+                                    <span class="field-val">••••••••</span>
+                                    <span class="copy-pill" onclick="copy('${item.pass}', event)">COPY</span>
+                                </div>
                             </div>
-                            <i class="fas fa-eye" style="color:#aaa; padding:10px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
-                            <button class="copy-btn" onclick="copy(this, '${item.pass}')">COPY</button>
+                            ${item.note ? `<div style="font-size:12px; background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:10px; color:#475569">${item.note}</div>` : ''}
+                            <a href="${fullLink}" target="_blank" class="btn-visit" onclick="event.stopPropagation()">Truy cập trang web <i class="fas fa-external-link-alt"></i></a>
                         </div>
-                        ${item.note ? `<div class="note-box"><i class="fas fa-sticky-note"></i> <span>${item.note}</span></div>` : ''}
-                        <a href="${fullLink}" target="_blank" class="web-link">Truy cập <i class="fas fa-external-link-alt"></i></a>
                     </div>
                 `;
             });
         }
 
-        function togglePass(icon, pass) {
-            const valDiv = icon.previousElementSibling.querySelector('.field-value');
-            if(valDiv.innerText === '••••••••') {
-                valDiv.innerText = pass; icon.className = "fas fa-eye-slash"; icon.style.color = "var(--primary)";
+        // --- SHEET & MENU ---
+        function openSheet(id=null) {
+            document.getElementById('sheet').classList.add('open');
+            ['inpWeb','inpName','inpUser','inpPass','inpNote','inpTag','editId'].forEach(k => document.getElementById(k).value = '');
+            if(id) {
+                const i = vault.find(x => x.id === id);
+                document.getElementById('editId').value = id;
+                document.getElementById('inpWeb').value = i.web;
+                document.getElementById('inpName').value = i.name;
+                document.getElementById('inpUser').value = i.user;
+                document.getElementById('inpPass').value = i.pass;
+                document.getElementById('inpNote').value = i.note;
+                document.getElementById('inpTag').value = i.tag || '';
+                document.getElementById('sheet-title').innerText = "Sửa tài khoản";
             } else {
-                valDiv.innerText = '••••••••'; icon.className = "fas fa-eye"; icon.style.color = "#aaa";
+                document.getElementById('sheet-title').innerText = "Thêm tài khoản";
             }
         }
+        function closeSheet() { document.getElementById('sheet').classList.remove('open'); }
 
-        function copy(btn, txt) {
-            navigator.clipboard.writeText(txt);
-            let old = btn.innerText; btn.innerText = "OK"; btn.classList.add('copied');
-            setTimeout(() => { btn.innerText = old; btn.classList.remove('copied'); }, 1500);
+        function openMenu(id, name, e) {
+            e.stopPropagation();
+            document.getElementById('menuId').value = id;
+            document.getElementById('menu-title').innerText = name;
+            document.getElementById('menu-sheet').classList.add('open');
         }
+        function closeMenu() { document.getElementById('menu-sheet').classList.remove('open'); }
 
-        function autoFillName() {
-            const web = document.getElementById('inpWeb').value;
-            const name = document.getElementById('inpName');
-            if(web && !name.value) {
-                let d = web.replace('https://','').replace('http://','').split('/')[0].replace('www.','');
-                name.value = d.split('.')[0].charAt(0).toUpperCase() + d.split('.')[0].slice(1);
-            }
-        }
-
-        function openModal(id = null) {
-            document.getElementById('modal').style.display = 'flex';
-            ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
-            if (id) {
-                const item = vault.find(i => i.id === id);
-                if(item) {
-                    document.getElementById('editId').value = id;
-                    document.getElementById('inpWeb').value = item.web || '';
-                    document.getElementById('inpName').value = item.name || '';
-                    document.getElementById('inpUser').value = item.user || '';
-                    document.getElementById('inpPass').value = item.pass || '';
-                    document.getElementById('inpNote').value = item.note || '';
+        function menuAction(action) {
+            const id = Number(document.getElementById('menuId').value);
+            const item = vault.find(x => x.id === id);
+            closeMenu();
+            
+            if(action === 'edit') openSheet(id);
+            if(action === 'delete') {
+                if(confirm('Xóa vĩnh viễn?')) {
+                    vault = vault.filter(x => x.id !== id);
+                    logHistory('Deleted ' + item.name);
+                    saveVault();
                 }
             }
+            if(action === 'copy_user') copy(item.user);
+            if(action === 'copy_pass') copy(item.pass);
         }
 
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        function openSettings() { document.getElementById('settingsModal').style.display = 'flex'; }
-
-        // --- LOGIC DATA & SYNC ---
+        // --- LOGIC ---
         function saveData() {
             const id = document.getElementById('editId').value;
             const item = {
@@ -344,118 +461,146 @@
                 name: document.getElementById('inpName').value,
                 user: document.getElementById('inpUser').value,
                 pass: document.getElementById('inpPass').value,
-                note: document.getElementById('inpNote').value
+                note: document.getElementById('inpNote').value,
+                tag: document.getElementById('inpTag').value,
+                updated: new Date().toISOString()
             };
-            if(!item.name) return alert("Vui lòng nhập tên!");
-            if(id) vault[vault.findIndex(i => i.id == id)] = item;
-            else vault.unshift(item);
-            
-            triggerAutoSystems();
-            closeModal('modal');
-        }
+            if(!item.name) return showToast('❌ Vui lòng nhập tên', true);
 
-        function deleteItem(id) {
-            if(confirm("Xóa mục này?")) {
-                vault = vault.filter(i => i.id !== id);
-                triggerAutoSystems();
+            if(id) {
+                const idx = vault.findIndex(x => x.id == id);
+                vault[idx] = item;
+                logHistory('Edited ' + item.name);
+            } else {
+                vault.unshift(item);
+                logHistory('Added ' + item.name);
             }
+            saveVault();
+            closeSheet();
         }
 
-        function triggerAutoSystems() {
+        function saveVault() {
             localStorage.setItem('vault_final_v1', JSON.stringify(vault));
             render();
-            // Auto Sync Save
+            
+            // Auto trigger
             const syncPass = localStorage.getItem('sync_pass');
             if(syncPass) performSync('save', syncPass, true);
-            // Auto Backup
             performBackup(true);
         }
 
-        function saveZipPass(btn) {
-            const val = document.getElementById('zipPassInput').value;
-            if(val) {
-                localStorage.setItem('zip_pass', val);
-                const old = btn.innerText; btn.innerText = "LƯU OK";
-                performBackup(true);
-                setTimeout(()=>btn.innerText=old, 1500);
+        function copy(txt, e) {
+            if(e) e.stopPropagation();
+            navigator.clipboard.writeText(txt);
+            showToast('📋 Đã sao chép');
+        }
+
+        function genPass() {
+            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+            let pass = "";
+            for(let i=0; i<16; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
+            document.getElementById('inpPass').value = pass;
+        }
+
+        function autoFillName() {
+            const w = document.getElementById('inpWeb').value;
+            const n = document.getElementById('inpName');
+            if(w && !n.value) {
+                let d = w.replace('https://','').replace('http://','').split('/')[0].replace('www.','');
+                n.value = d.charAt(0).toUpperCase() + d.slice(1).split('.')[0];
             }
         }
 
-        // --- NEW: AUTO SYNC ON LOAD (PULL) ---
-        async function autoSyncOnLoad() {
-            const pass = localStorage.getItem('sync_pass');
-            if (pass && navigator.onLine) {
-                const toast = document.getElementById('sync-toast');
-                toast.style.display = 'block';
-                try {
-                    await performSync('load', pass, true);
-                } catch(e) { console.log('Auto sync fail', e); }
-                setTimeout(() => toast.style.display = 'none', 1500);
-            }
+        function logHistory(action) {
+            historyLog.unshift({ action: action, time: new Date().toLocaleString() });
+            if(historyLog.length > 20) historyLog.pop();
+            localStorage.setItem('vault_history', JSON.stringify(historyLog));
         }
 
-        async function performBackup(isAuto = false) {
-            const zipPass = localStorage.getItem('zip_pass');
-            if(!zipPass || !navigator.onLine) {
-                if(isAuto && zipPass) localStorage.setItem('queue_backup', 'true');
-                return;
-            }
+        function updateSyncStatus() {
+            const last = localStorage.getItem('last_sync_time');
+            document.getElementById('last-sync').innerText = last ? 'Lần cuối: ' + last : 'Chưa đồng bộ';
+        }
+
+        // --- BACKUP & SYNC ---
+        async function callWorker(payload, isFile=false) {
+            if(!navigator.onLine) throw new Error("Offline");
+            let opts = { method: 'POST' };
+            if(isFile) opts.body = payload;
+            else { opts.headers = {'Content-Type': 'application/json'}; opts.body = JSON.stringify(payload); }
+            
+            const res = await fetch(WORKER_URL, opts);
+            if(!res.ok) throw new Error(await res.text());
+            return await res.json();
+        }
+
+        async function performBackup(isAuto) {
+            const pass = localStorage.getItem('zip_pass');
+            if(!pass) return; 
+            
             try {
-                // Logic CSV & Zip giữ nguyên
-                let today = new Date().toLocaleDateString('vi-VN').replace(/\//g,'-');
-                let lastDate = localStorage.getItem('last_backup_date');
-                let count = (lastDate === today) ? parseInt(localStorage.getItem('backup_count') || '0') + 1 : 1;
-                localStorage.setItem('last_backup_date', today);
-                localStorage.setItem('backup_count', count);
-                let fileName = `data_lan_${count}.csv`;
-
-                let csv = "\uFEFFName,ID,Token,Note\n"; 
-                vault.forEach(item => {
-                    const row = [item.name, item.user, item.pass, item.note].map(t => `"${String(t||'').replace(/"/g, '""')}"`).join(",");
-                    csv += row + "\n";
-                });
-
+                let csv = "\uFEFFName,User,Pass,Note,Tag\n";
+                vault.forEach(i => csv += `"${i.name}","${i.user}","${i.pass}","${i.note}","${i.tag}"\n`);
+                
                 const blobWriter = new zip.BlobWriter("application/zip");
-                const zipWriter = new zip.ZipWriter(blobWriter, { password: zipPass, encryptionStrength: 3, zipCrypto: false, dataDescriptorSignature: true });
-                await zipWriter.add(fileName, new zip.TextReader(csv));
+                const zipWriter = new zip.ZipWriter(blobWriter, { password: pass, encryptionStrength: 3 });
+                await zipWriter.add("data.csv", new zip.TextReader(csv));
                 await zipWriter.close();
                 const blob = await blobWriter.getData();
 
                 const fd = new FormData();
                 fd.append('action', 'backup_file');
-                fd.append('file', blob, "backup_encrypted.zip"); 
+                fd.append('file', blob);
                 await callWorker(fd, true);
-            } catch(e) { console.error("Backup Fail", e); }
+                if(!isAuto) showToast('☁️ Đã gửi Backup Tele');
+            } catch(e) { console.error(e); }
         }
 
-        async function handleSyncBtn(btn, action) {
+        async function syncCloud(action) {
             const pass = document.getElementById('syncPassInput').value;
-            if(!pass) return alert("Chưa nhập pass!");
+            if(!pass) return showToast('❌ Nhập mã Sync', true);
             localStorage.setItem('sync_pass', pass);
-            const oldTxt = btn.innerHTML; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>...`; btn.disabled = true;
+            
+            showToast('⏳ Đang đồng bộ...');
             try {
                 await performSync(action, pass, false);
-                btn.innerHTML = `<i class="fas fa-check"></i> Xong!`;
-                if(action === 'load') closeModal('settingsModal');
-            } catch(e) { btn.innerHTML = `❌ Lỗi`; alert(e.message); }
-            setTimeout(() => { btn.innerHTML = oldTxt; btn.disabled = false; }, 2000);
+                showToast('✅ Đồng bộ thành công');
+            } catch(e) { showToast('❌ Lỗi: ' + e.message, true); }
+        }
+
+        async function deleteCloudData() {
+            const pass = localStorage.getItem('sync_pass');
+            if(!pass) return showToast('❌ Chưa có mã Sync', true);
+            if(!confirm('Xóa sạch dữ liệu trên Cloud? Hành động này không thể hoàn tác!')) return;
+            
+            try {
+                const res = await callWorker({ action: 'sync_delete', sync_pass: pass });
+                if(res.success) showToast('🗑 Đã xóa Cloud Data');
+            } catch(e) { showToast('❌ Lỗi xóa', true); }
         }
 
         async function performSync(action, pass, isAuto) {
-            if(!navigator.onLine) {
-                if(isAuto) localStorage.setItem('queue_sync', 'true');
-                throw new Error("Offline");
+            const res = await callWorker({ 
+                action: action === 'save' ? 'sync_save' : 'sync_load',
+                sync_pass: pass,
+                data: action === 'save' ? vault : null
+            });
+            if(res.success) {
+                if(action === 'load' && res.data) {
+                    vault = res.data;
+                    localStorage.setItem('vault_final_v1', JSON.stringify(vault));
+                    render();
+                }
+                const time = new Date().toLocaleString();
+                localStorage.setItem('last_sync_time', time);
+                updateSyncStatus();
             }
-            const payload = { action: action === 'save' ? 'sync_save' : 'sync_load', sync_pass: pass, data: action === 'save' ? vault : null };
-            const json = await callWorker(payload, false);
-            if(!json.success) throw new Error(json.msg);
+        }
 
-            if(action === 'load' && json.data && json.data.length) {
-                // Merge data nếu cần, ở đây ghi đè để đồng bộ
-                vault = json.data;
-                localStorage.setItem('vault_final_v1', JSON.stringify(vault));
-                render();
-            }
+        function saveZipPass() {
+            localStorage.setItem('zip_pass', document.getElementById('zipPassInput').value);
+            showToast('✅ Đã lưu pass Backup');
+            performBackup(false);
         }
     </script>
 </body>
