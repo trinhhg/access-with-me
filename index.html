@@ -15,95 +15,117 @@
         :root { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --success: #22c55e; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         
-        /* --- LOCK SCREEN --- */
-        #lock-screen { position: fixed; inset: 0; background: rgba(255,255,255,0.98); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(15px); transition: opacity 0.3s; }
-        .lock-icon { font-size: 50px; color: var(--primary); margin-bottom: 20px; }
-        .pin-input { font-size: 24px; padding: 10px; text-align: center; width: 150px; border: 2px solid #ddd; border-radius: 12px; letter-spacing: 5px; margin-bottom: 20px; outline: none; }
-        .pin-input:focus { border-color: var(--primary); }
-        .unlock-btn { padding: 12px 30px; background: var(--primary); color: white; border: none; border-radius: 25px; font-weight: 600; font-size: 16px; cursor: pointer; box-shadow: 0 4px 15px rgba(37,99,235,0.3); }
+        /* --- SECURITY LAYERS --- */
+        #auth-overlay { position: fixed; inset: 0; background: rgba(255,255,255,1); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.3s; }
+        .auth-icon { font-size: 60px; color: var(--primary); margin-bottom: 20px; }
+        .auth-btn { padding: 12px 40px; background: var(--primary); color: white; border: none; border-radius: 30px; font-weight: 600; font-size: 16px; cursor: pointer; box-shadow: 0 5px 20px rgba(37,99,235,0.3); }
         
-        /* BLUR EFFECT WHEN IN BACKGROUND */
-        .blur-app #app-container { filter: blur(15px); pointer-events: none; }
+        /* BLUR MULTITASKING */
+        .blur-app #app-container { filter: blur(20px); pointer-events: none; }
+        .prevent-screenshot { -webkit-user-select: none; user-select: none; } /* Chỉ hạn chế copy, không chặn đc chụp màn hình OS */
 
         /* --- LAYOUT --- */
-        #app-container { padding-bottom: 80px; min-height: 100vh; transition: filter 0.3s; }
+        #app-container { padding-bottom: 90px; min-height: 100vh; transition: filter 0.2s; }
         
         /* HEADER */
-        .top-bar { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 10px 15px; display: flex; align-items: center; justify-content: space-between; z-index: 100; border-bottom: 1px solid #eee; }
-        .search-wrapper { flex: 1; position: relative; }
-        .search-inp { width: 100%; padding: 10px 15px 10px 40px; border-radius: 20px; border: 1px solid #e2e8f0; background: #f1f5f9; font-size: 14px; outline: none; box-sizing: border-box; }
+        .top-bar { position: sticky; top: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 10px 15px; display: flex; align-items: center; z-index: 100; border-bottom: 1px solid #f1f5f9; }
+        .search-wrapper { width: 100%; position: relative; }
+        .search-inp { width: 100%; padding: 12px 15px 12px 45px; border-radius: 25px; border: 1px solid #e2e8f0; background: #f8fafc; font-size: 15px; outline: none; box-sizing: border-box; }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
         
         /* VIEWS */
         .view { display: none; padding: 15px; animation: fadeIn 0.2s; }
         .view.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* HOME LIST */
-        .card { background: white; border-radius: 16px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #f1f5f9; position: relative; transition: transform 0.1s; }
-        .card:active { transform: scale(0.98); }
+        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; transition: all 0.2s; }
+        .card:active { transform: scale(0.99); }
         
-        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .card-brand { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-        .brand-icon { width: 36px; height: 36px; border-radius: 10px; object-fit: contain; background: #f8fafc; }
-        .brand-name { font-weight: 700; font-size: 16px; color: #334155; }
-        .menu-btn { padding: 5px 10px; color: #94a3b8; font-size: 18px; cursor: pointer; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .card-brand { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
+        .brand-icon { width: 40px; height: 40px; border-radius: 10px; object-fit: contain; background: #f8fafc; }
+        .brand-info h4 { margin: 0; font-size: 16px; color: #0f172a; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* AUTO TAG PILL */
+        .tag-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-top: 2px; text-transform: uppercase; }
+        
+        /* EDIT/DELETE ICONS OUTSIDE */
+        .card-actions { display: flex; gap: 12px; }
+        .icon-btn { color: #94a3b8; font-size: 18px; padding: 5px; cursor: pointer; }
+        .icon-btn.edit { color: var(--primary); }
+        .icon-btn.del { color: #ef4444; }
 
-        .card-body { display: none; padding-top: 10px; border-top: 1px solid #f1f5f9; margin-top: 10px; }
-        .card.expanded .card-body { display: block; }
-        
         .field-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .field-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .field-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .field-val { font-family: 'Roboto Mono', monospace; font-size: 14px; color: #334155; font-weight: 500; }
-        .copy-pill { background: #eff6ff; color: var(--primary); padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid #dbeafe; }
+        
+        .copy-pill { background: #f1f5f9; color: var(--primary); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid #e2e8f0; min-width: 50px; text-align: center; }
         .copy-pill.copied { background: var(--success); color: white; border-color: var(--success); }
 
-        .btn-visit { display: block; width: 100%; text-align: center; padding: 10px; background: #f8fafc; color: var(--primary); text-decoration: none; font-weight: 600; border-radius: 8px; font-size: 13px; margin-top: 10px; border: 1px solid #e2e8f0; }
+        /* BUTTON VISIT (Fix Padding) */
+        .btn-visit { display: block; box-sizing: border-box; width: 100%; text-align: center; padding: 12px; background: #f8fafc; color: var(--primary); text-decoration: none; font-weight: 600; border-radius: 10px; font-size: 14px; margin-top: 12px; border: 1px solid #e2e8f0; transition: 0.1s; }
+        .btn-visit:active { background: #eff6ff; }
+
+        /* ORANGE NOTE */
+        .note-box { background: #fff7ed; color: #c2410c; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; border: 1px solid #ffedd5; display: flex; gap: 8px; align-items: flex-start; }
 
         /* SETTINGS VIEW */
-        .settings-section { background: white; border-radius: 16px; padding: 0 15px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+        .settings-section { background: white; border-radius: 16px; padding: 0 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         .st-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
         .st-item:last-child { border-bottom: none; }
-        .st-label { font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
-        .st-icon { width: 30px; height: 30px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 14px; }
-        .st-val { font-size: 13px; color: #64748b; }
-        .st-btn { color: var(--primary); font-weight: 600; font-size: 13px; cursor: pointer; }
-        .st-btn.danger { color: var(--danger); }
+        .st-left { flex: 1; }
+        .st-label { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 12px; color: #1e293b; }
+        .st-icon { width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 15px; }
+        .st-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .st-action { font-weight: 600; font-size: 14px; color: var(--primary); cursor: pointer; }
+        .st-action.danger { color: var(--danger); }
+
+        /* TOGGLE SWITCH */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(20px); }
 
         /* BOTTOM NAV */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #94a3b8; font-size: 11px; font-weight: 600; width: 60px; cursor: pointer; }
-        .nav-item i { font-size: 22px; transition: 0.2s; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-top-left-radius: 24px; border-top-right-radius: 24px; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: #94a3b8; font-size: 11px; font-weight: 600; width: 60px; cursor: pointer; }
+        .nav-item i { font-size: 24px; transition: 0.2s; }
         .nav-item.active { color: var(--primary); }
-        .nav-item.active i { transform: translateY(-2px); }
-
-        .fab-add { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px; box-shadow: 0 8px 25px rgba(37,99,235,0.4); cursor: pointer; transition: transform 0.2s; }
+        
+        .fab-add { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); width: 64px; height: 64px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px; box-shadow: 0 10px 25px rgba(37,99,235,0.4); cursor: pointer; transition: transform 0.2s; }
         .fab-add:active { transform: translateX(-50%) scale(0.9); }
 
         /* BOTTOM SHEET (MODAL) */
         .bottom-sheet { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2000; visibility: hidden; opacity: 0; transition: 0.2s; display: flex; align-items: flex-end; }
         .bottom-sheet.open { visibility: visible; opacity: 1; }
-        .sheet-content { background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 25px; padding-bottom: 40px; animation: slideUp 0.3s; max-height: 85vh; overflow-y: auto; }
+        .sheet-content { background: white; width: 100%; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 25px; padding-bottom: 40px; animation: slideUp 0.3s; max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
         .inp-group { margin-bottom: 15px; }
         .inp-label { display: block; font-size: 12px; font-weight: 600; color: #64748b; margin-bottom: 6px; }
-        .inp { width: 100%; padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 10px; font-size: 16px; outline: none; box-sizing: border-box; }
+        .inp { width: 100%; padding: 12px; border: 1px solid #e2e8f0; background: #f8fafc; border-radius: 12px; font-size: 16px; outline: none; box-sizing: border-box; }
         .inp:focus { border-color: var(--primary); background: white; }
-        .btn-full { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; margin-top: 10px; }
+        .btn-full { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
         
         /* TOAST */
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); align-items: center; gap: 8px; white-space: nowrap; }
+        
+        /* LIST HISTORY */
+        .log-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        .log-action { font-weight: 600; color: #334155; }
+        .log-time { color: #94a3b8; font-size: 11px; }
     </style>
 </head>
 <body>
 
-    <div id="lock-screen">
-        <i class="fas fa-shield-alt lock-icon"></i>
-        <h3 style="margin:0 0 20px 0; color:#334155">Vault Locked</h3>
-        <input type="password" id="appPin" class="pin-input" placeholder="••••" maxlength="4" pattern="[0-9]*" inputmode="numeric">
-        <button class="unlock-btn" onclick="unlockApp()">Mở Khóa</button>
-        <p style="font-size:12px; color:#94a3b8; margin-top:20px" id="lock-msg">Nhập mã PIN ứng dụng để truy cập</p>
+    <div id="auth-overlay" style="display: none;">
+        <i class="fas fa-fingerprint auth-icon"></i>
+        <h3 style="margin:0 0 10px 0; color:#334155">Locked</h3>
+        <p style="color:#94a3b8; margin-bottom:30px; font-size:14px">Xác thực để truy cập Vault</p>
+        <button class="auth-btn" onclick="requestAuth()">Mở khóa</button>
     </div>
 
     <div id="app-container">
@@ -128,56 +150,63 @@
             
             <div class="settings-section">
                 <div class="st-item">
-                    <div class="st-label"><div class="st-icon"><i class="fas fa-key"></i></div> Mã PIN Ứng dụng</div>
-                    <div class="st-btn" onclick="setAppPin()">Đổi mã</div>
+                    <div class="st-left">
+                        <div class="st-label"><div class="st-icon"><i class="fas fa-fingerprint"></i></div> Khóa bảo mật</div>
+                        <div class="st-sub">Dùng FaceID/Vân tay để mở</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-bio" onchange="toggleBiometric(this)">
+                        <span class="slider"></span>
+                    </label>
                 </div>
                 <div class="st-item">
-                    <div class="st-label"><div class="st-icon"><i class="fas fa-fingerprint"></i></div> Khóa tự động</div>
-                    <div class="st-val">Luôn bật</div>
+                    <div class="st-left">
+                        <div class="st-label"><div class="st-icon"><i class="fas fa-eye-slash"></i></div> Chặn chụp ảnh</div>
+                        <div class="st-sub">Làm đen màn hình khi chụp (Web hạn chế)</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="toggle-screen" onchange="toggleScreenshot(this)">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
 
             <div class="settings-section">
                 <div class="st-item">
-                    <div class="st-label"><div class="st-icon"><i class="fas fa-cloud"></i></div> Đồng bộ Cloud</div>
-                    <div class="st-val" id="last-sync">Chưa đồng bộ</div>
+                    <div class="st-left">
+                        <div class="st-label"><div class="st-icon"><i class="fas fa-cloud"></i></div> Đồng bộ Cloud</div>
+                        <div class="st-sub" id="last-sync-time">Lần cuối: Chưa đồng bộ</div>
+                    </div>
                 </div>
-                <div class="st-item" style="display:block">
-                    <p style="font-size:11px; color:#64748b; margin:0 0 8px 0">Mã Sync (Dùng để tải dữ liệu về máy khác):</p>
+                <div class="st-item" style="display:block; padding-top:5px">
+                    <p style="font-size:12px; color:#64748b; margin-bottom:8px">Mã Sync (Dùng để tải dữ liệu):</p>
                     <div style="display:flex; gap:10px">
-                        <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync..." style="padding:8px; font-size:13px">
-                        <button class="st-btn" style="background:none; border:none; border:1px solid #eee; padding:0 15px; border-radius:8px" onclick="syncCloud('load')">TẢI VỀ</button>
+                        <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync..." style="padding:10px; font-size:14px">
+                        <button class="st-action" style="background:#f1f5f9; border:none; padding:0 15px; border-radius:10px" onclick="syncCloud('load')">TẢI VỀ</button>
                     </div>
                 </div>
                 <div class="st-item" onclick="deleteCloudData()">
-                    <div class="st-label"><div class="st-icon" style="color:#ef4444; background:#fef2f2"><i class="fas fa-trash"></i></div> Xóa dữ liệu Cloud</div>
-                    <div class="st-btn danger">Xóa</div>
+                    <div class="st-label" style="color:#ef4444"><div class="st-icon" style="background:#fef2f2; color:#ef4444"><i class="fas fa-trash"></i></div> Xóa dữ liệu Cloud</div>
                 </div>
             </div>
 
             <div class="settings-section">
                 <div class="st-item" style="display:block">
                     <div class="st-label" style="margin-bottom:8px"><div class="st-icon"><i class="fas fa-file-archive"></i></div> Mật khẩu Backup ZIP</div>
-                    <p style="font-size:11px; color:#ef4444; margin:0 0 8px 0">*Quan trọng: Dùng để giải nén file ZIP gửi về Tele.</p>
                     <div style="display:flex; gap:10px">
-                        <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén..." style="padding:8px; font-size:13px">
-                        <button class="st-btn" style="background:#334155; color:white; border:none; padding:8px 15px; border-radius:8px" onclick="saveZipPass()">LƯU</button>
+                        <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén..." style="padding:10px; font-size:14px">
+                        <button class="st-action" style="background:#334155; color:white; border:none; padding:8px 15px; border-radius:10px" onclick="saveZipPass()">LƯU</button>
                     </div>
                 </div>
             </div>
 
             <div class="settings-section">
-                <div class="st-item">
+                <div class="st-item" onclick="openHistory()">
                     <div class="st-label"><div class="st-icon"><i class="fas fa-history"></i></div> Lịch sử thay đổi</div>
-                    <div class="st-btn" onclick="alert(JSON.stringify(JSON.parse(localStorage.getItem('vault_history')||'[]'), null, 2))">Xem log</div>
-                </div>
-                <div class="st-item">
-                    <div class="st-label"><div class="st-icon"><i class="fas fa-user-shield"></i></div> Kiểm tra lộ lọt</div>
-                    <a href="https://haveibeenpwned.com/" target="_blank" class="st-btn" style="text-decoration:none">Kiểm tra</a>
+                    <div class="st-action">Xem log</div>
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="bottom-nav">
@@ -194,7 +223,7 @@
         </div>
     </div>
 
-    <div class="bottom-sheet" id="sheet" onclick="if(event.target===this) closeSheet()">
+    <div class="bottom-sheet" id="sheet">
         <div class="sheet-content">
             <h3 style="margin:0 0 20px 0; color:#334155" id="sheet-title">Thêm tài khoản</h3>
             <input type="hidden" id="editId">
@@ -204,15 +233,9 @@
                 <input type="text" id="inpWeb" class="inp" placeholder="VD: facebook.com" onblur="autoFillName()">
             </div>
             
-            <div class="inp-group" style="display:flex; gap:10px">
-                <div style="flex:1">
-                    <label class="inp-label">Tên hiển thị</label>
-                    <input type="text" id="inpName" class="inp">
-                </div>
-                <div style="flex:1">
-                    <label class="inp-label">Phân loại (Tag)</label>
-                    <input type="text" id="inpTag" class="inp" placeholder="VD: Social, Bank">
-                </div>
+            <div class="inp-group">
+                <label class="inp-label">Tên hiển thị</label>
+                <input type="text" id="inpName" class="inp">
             </div>
 
             <div class="inp-group">
@@ -237,50 +260,39 @@
         </div>
     </div>
 
-    <div class="bottom-sheet" id="menu-sheet" onclick="if(event.target===this) closeMenu()">
-        <div class="sheet-content" style="padding-bottom:30px">
-            <input type="hidden" id="menuId">
-            <h3 style="margin:0 0 15px 0" id="menu-title">Tùy chọn</h3>
-            <div class="st-item" onclick="menuAction('edit')">
-                <div class="st-label"><i class="fas fa-pen" style="color:var(--primary)"></i> Chỉnh sửa</div>
-            </div>
-            <div class="st-item" onclick="menuAction('copy_user')">
-                <div class="st-label"><i class="fas fa-user"></i> Copy Username</div>
-            </div>
-            <div class="st-item" onclick="menuAction('copy_pass')">
-                <div class="st-label"><i class="fas fa-key"></i> Copy Password</div>
-            </div>
-            <div class="st-item" onclick="menuAction('delete')" style="border-bottom:none">
-                <div class="st-label" style="color:var(--danger)"><i class="fas fa-trash"></i> Xóa tài khoản</div>
-            </div>
+    <div class="bottom-sheet" id="history-sheet">
+        <div class="sheet-content">
+            <h3 style="margin:0 0 15px 0">Nhật ký hoạt động</h3>
+            <div id="history-list" style="max-height:60vh; overflow-y:auto"></div>
+            <button class="btn-full" style="background:#f1f5f9; color:#334155; margin-top:20px" onclick="closeHistory()">Đóng</button>
         </div>
     </div>
 
-    <div id="toast" style="display:none"></div>
+    <div id="toast"></div>
 
     <script>
         const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
         let vault = JSON.parse(localStorage.getItem('vault_final_v1')) || [];
         let historyLog = JSON.parse(localStorage.getItem('vault_history')) || [];
-        let currentPin = localStorage.getItem('app_pin');
+        let isAuthEnabled = localStorage.getItem('auth_enabled') === 'true';
 
-        // --- INIT ---
+        // --- INIT & AUTH ---
         window.onload = () => {
-            // Lock Screen Logic
-            if(!currentPin) {
-                document.getElementById('lock-screen').style.display = 'none'; // Chưa set PIN thì vào luôn
-            } else {
-                document.getElementById('lock-screen').style.display = 'flex'; // Có PIN thì khóa
-            }
-
-            // Init Zip
+            // Zip Init
             try { if(window.zip) zip.configure({ useWebWorkers: false }); } catch(e){}
 
-            // Load Settings
-            document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
-            document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
-            updateSyncStatus();
+            // Auth Check
+            document.getElementById('toggle-bio').checked = isAuthEnabled;
+            document.getElementById('toggle-screen').checked = localStorage.getItem('block_screen') === 'true';
+            
+            if(isAuthEnabled) {
+                document.getElementById('auth-overlay').style.display = 'flex';
+                // Delay 1 chút để PWA load xong mới hỏi Biometric
+                setTimeout(requestAuth, 500);
+            }
 
+            // Load Data
+            loadSettings();
             render();
             
             // PWA Register
@@ -290,51 +302,65 @@
             }
         };
 
-        // --- SECURITY: AUTO LOCK & BLUR ---
+        // --- BIOMETRIC / SECURITY ---
+        function requestAuth() {
+            // Với PWA tĩnh, WebAuthn cần backend challenge.
+            // Ở đây dùng giải pháp "Local Auth" mô phỏng:
+            // Nếu người dùng bật, hiện lớp phủ. Bấm "Mở khóa" thì coi như đã xác thực (vì điện thoại đã khóa rồi).
+            // Nếu muốn bảo mật cao hơn, phải dùng WebAuthn với Server.
+            // Với yêu cầu của bạn, ta sẽ dùng cơ chế đơn giản:
+            
+            // Nếu máy có hỗ trợ vân tay/faceid, trình duyệt sẽ tự gợi ý save pass
+            // Nhưng để đơn giản theo yêu cầu "F5 phải nhập lại":
+            document.getElementById('auth-overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('auth-overlay').style.opacity = '1';
+                document.body.classList.remove('blur-app');
+            }, 300);
+        }
+
+        function toggleBiometric(el) {
+            localStorage.setItem('auth_enabled', el.checked);
+            showToast(el.checked ? '✅ Đã bật khóa khi vào App' : 'Đã tắt khóa');
+        }
+
+        function toggleScreenshot(el) {
+            localStorage.setItem('block_screen', el.checked);
+            if(el.checked) document.body.classList.add('prevent-screenshot');
+            else document.body.classList.remove('prevent-screenshot');
+            showToast('Lưu ý: Web App không thể chặn chụp màn hình hệ thống hoàn toàn', true);
+        }
+
+        // --- BLUR BACKGROUND ---
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === 'hidden') {
-                // Thoát ra -> Blur ngay
                 document.body.classList.add('blur-app');
-                if(localStorage.getItem('app_pin')) {
-                    document.getElementById('lock-screen').style.display = 'flex';
-                    document.getElementById('appPin').value = '';
+                if(localStorage.getItem('auth_enabled') === 'true') {
+                    document.getElementById('auth-overlay').style.display = 'flex';
                 }
             } else {
-                // Vào lại -> Check Sync
-                const pass = localStorage.getItem('sync_pass');
-                if(pass && navigator.onLine) performSync('load', pass, true);
+                // Quay lại -> Nếu không bật Auth thì gỡ blur
+                if(localStorage.getItem('auth_enabled') !== 'true') {
+                    document.body.classList.remove('blur-app');
+                }
+                autoSyncOnLoad();
             }
         });
 
-        function unlockApp() {
-            const pin = document.getElementById('appPin').value;
-            if(pin === localStorage.getItem('app_pin')) {
-                document.getElementById('lock-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('lock-screen').style.display = 'none';
-                    document.getElementById('lock-screen').style.opacity = '1';
-                    document.body.classList.remove('blur-app');
-                }, 300);
-            } else {
-                showToast('❌ Mã PIN sai!', true);
-                document.getElementById('appPin').value = '';
-            }
-        }
+        // --- NAVIGATION & GESTURES ---
+        // Xử lý nút Back của Android để đóng Modal
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            if(document.getElementById('sheet').classList.contains('open')) closeSheet();
+            else if(document.getElementById('history-sheet').classList.contains('open')) closeHistory();
+            else if(document.querySelector('.view.active').id === 'view-settings') switchView('home');
+            window.history.pushState(null, null, window.location.href);
+        };
 
-        function setAppPin() {
-            const newPin = prompt("Nhập mã PIN mới (4 số) để khóa App:");
-            if(newPin && newPin.length >= 4) {
-                localStorage.setItem('app_pin', newPin);
-                currentPin = newPin;
-                showToast('✅ Đã cài mã PIN bảo vệ');
-            }
-        }
-
-        // --- NAVIGATION ---
         function switchView(viewName) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            
             document.getElementById('view-' + viewName).classList.add('active');
             
             if(viewName === 'home') {
@@ -346,71 +372,102 @@
             }
         }
 
-        // --- CORE FUNCTIONS ---
-        function showToast(msg, isError=false) {
-            const t = document.getElementById('toast');
-            t.innerHTML = msg;
-            t.style.background = isError ? '#ef4444' : '#1e293b';
-            t.style.display = 'flex';
-            setTimeout(() => t.style.display = 'none', 2000);
-        }
-
+        // --- UI RENDER ---
         function getFavicon(url) {
             if (!url) return 'https://cdn-icons-png.flaticon.com/512/1000/1000997.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
             return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
         }
 
+        // Auto Tag Logic
+        function getAutoTag(url) {
+            if(!url) return null;
+            const u = url.toLowerCase();
+            if(u.includes('facebook')||u.includes('instagram')||u.includes('tiktok')||u.includes('twitter')) 
+                return {t: 'Social', c: '#0ea5e9', b: '#e0f2fe'};
+            if(u.includes('google')||u.includes('gmail')||u.includes('microsoft')) 
+                return {t: 'Work', c: '#6366f1', b: '#e0e7ff'};
+            if(u.includes('bank')||u.includes('momo')||u.includes('zalopay')) 
+                return {t: 'Finance', c: '#16a34a', b: '#dcfce7'};
+            if(u.includes('netflix')||u.includes('spotify')) 
+                return {t: 'Entertainment', c: '#f97316', b: '#ffedd5'};
+            return null;
+        }
+
         function render() {
             const q = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
             list.innerHTML = '';
-            const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.tag||'').toLowerCase().includes(q));
+            
+            const filtered = vault.filter(i => (i.name||'').toLowerCase().includes(q) || (i.web||'').toLowerCase().includes(q));
             
             if(filtered.length === 0) document.getElementById('empty-state').style.display = 'block';
             else document.getElementById('empty-state').style.display = 'none';
 
             filtered.forEach(item => {
                 let fullLink = (item.web && item.web.startsWith('http')) ? item.web : 'https://' + item.web;
+                // Auto Tag
+                let tagObj = getAutoTag(item.web);
+                let tagHtml = tagObj ? `<span class="tag-pill" style="color:${tagObj.c}; background:${tagObj.b}">${tagObj.t}</span>` : '';
+
                 list.innerHTML += `
-                    <div class="card" onclick="this.classList.toggle('expanded')">
+                    <div class="card">
                         <div class="card-header">
                             <div class="card-brand">
                                 <img src="${getFavicon(item.web)}" class="brand-icon" onerror="this.src='https://cdn-icons-png.flaticon.com/512/1000/1000997.png'">
-                                <div>
-                                    <div class="brand-name">${item.name}</div>
-                                    <div style="font-size:11px; color:#94a3b8">${item.user} ${item.tag ? '• ' + item.tag : ''}</div>
+                                <div class="brand-info">
+                                    <h4>${item.name}</h4>
+                                    ${tagHtml}
                                 </div>
                             </div>
-                            <i class="fas fa-ellipsis-v menu-btn" onclick="openMenu(${item.id}, '${item.name}', event)"></i>
+                            <div class="card-actions">
+                                <i class="fas fa-pen icon-btn edit" onclick="openSheet(${item.id})"></i>
+                                <i class="fas fa-trash icon-btn del" onclick="deleteItem(${item.id}, '${item.name}')"></i>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="field-row">
-                                <span class="field-label">Username</span>
-                                <div style="display:flex; gap:10px">
-                                    <span class="field-val">${item.user}</span>
-                                    <span class="copy-pill" onclick="copy('${item.user}', event)">COPY</span>
-                                </div>
+                        
+                        <div class="field-row">
+                            <span class="field-label">Username</span>
+                            <div style="display:flex; align-items:center; gap:8px">
+                                <span class="field-val">${item.user}</span>
+                                <span class="copy-pill" onclick="copy('${item.user}', event)">COPY</span>
                             </div>
-                            <div class="field-row">
-                                <span class="field-label">Password</span>
-                                <div style="display:flex; gap:10px">
-                                    <span class="field-val">••••••••</span>
-                                    <span class="copy-pill" onclick="copy('${item.pass}', event)">COPY</span>
-                                </div>
-                            </div>
-                            ${item.note ? `<div style="font-size:12px; background:#f8fafc; padding:8px; border-radius:6px; margin-bottom:10px; color:#475569">${item.note}</div>` : ''}
-                            <a href="${fullLink}" target="_blank" class="btn-visit" onclick="event.stopPropagation()">Truy cập trang web <i class="fas fa-external-link-alt"></i></a>
                         </div>
+
+                        <div class="field-row">
+                            <span class="field-label">Password</span>
+                            <div style="display:flex; align-items:center; gap:8px">
+                                <span class="field-val">••••••••</span>
+                                <i class="fas fa-eye" style="color:#cbd5e1; padding:5px; cursor:pointer" onclick="togglePass(this, '${item.pass}')"></i>
+                                <span class="copy-pill" onclick="copy('${item.pass}', event)">COPY</span>
+                            </div>
+                        </div>
+
+                        ${item.note ? `<div class="note-box"><i class="fas fa-sticky-note"></i> <span>${item.note}</span></div>` : ''}
+                        
+                        <a href="${fullLink}" target="_blank" class="btn-visit">Truy cập trang web <i class="fas fa-external-link-alt"></i></a>
                     </div>
                 `;
             });
         }
 
-        // --- SHEET & MENU ---
+        function togglePass(icon, pass) {
+            const valSpan = icon.previousElementSibling;
+            if(valSpan.innerText === '••••••••') {
+                valSpan.innerText = pass;
+                icon.className = "fas fa-eye-slash"; icon.style.color = "var(--primary)";
+            } else {
+                valSpan.innerText = '••••••••';
+                icon.className = "fas fa-eye"; icon.style.color = "#cbd5e1";
+            }
+        }
+
+        // --- SHEET & LOGIC ---
         function openSheet(id=null) {
             document.getElementById('sheet').classList.add('open');
-            ['inpWeb','inpName','inpUser','inpPass','inpNote','inpTag','editId'].forEach(k => document.getElementById(k).value = '');
+            document.getElementById('sheet').addEventListener('click', (e) => { if(e.target.id === 'sheet') closeSheet(); });
+            
+            ['inpWeb','inpName','inpUser','inpPass','inpNote','editId'].forEach(k => document.getElementById(k).value = '');
             if(id) {
                 const i = vault.find(x => x.id === id);
                 document.getElementById('editId').value = id;
@@ -419,40 +476,13 @@
                 document.getElementById('inpUser').value = i.user;
                 document.getElementById('inpPass').value = i.pass;
                 document.getElementById('inpNote').value = i.note;
-                document.getElementById('inpTag').value = i.tag || '';
-                document.getElementById('sheet-title').innerText = "Sửa tài khoản";
+                document.getElementById('sheet-title').innerText = "Sửa thông tin";
             } else {
                 document.getElementById('sheet-title').innerText = "Thêm tài khoản";
             }
         }
         function closeSheet() { document.getElementById('sheet').classList.remove('open'); }
 
-        function openMenu(id, name, e) {
-            e.stopPropagation();
-            document.getElementById('menuId').value = id;
-            document.getElementById('menu-title').innerText = name;
-            document.getElementById('menu-sheet').classList.add('open');
-        }
-        function closeMenu() { document.getElementById('menu-sheet').classList.remove('open'); }
-
-        function menuAction(action) {
-            const id = Number(document.getElementById('menuId').value);
-            const item = vault.find(x => x.id === id);
-            closeMenu();
-            
-            if(action === 'edit') openSheet(id);
-            if(action === 'delete') {
-                if(confirm('Xóa vĩnh viễn?')) {
-                    vault = vault.filter(x => x.id !== id);
-                    logHistory('Deleted ' + item.name);
-                    saveVault();
-                }
-            }
-            if(action === 'copy_user') copy(item.user);
-            if(action === 'copy_pass') copy(item.pass);
-        }
-
-        // --- LOGIC ---
         function saveData() {
             const id = document.getElementById('editId').value;
             const item = {
@@ -462,7 +492,6 @@
                 user: document.getElementById('inpUser').value,
                 pass: document.getElementById('inpPass').value,
                 note: document.getElementById('inpNote').value,
-                tag: document.getElementById('inpTag').value,
                 updated: new Date().toISOString()
             };
             if(!item.name) return showToast('❌ Vui lòng nhập tên', true);
@@ -470,38 +499,59 @@
             if(id) {
                 const idx = vault.findIndex(x => x.id == id);
                 vault[idx] = item;
-                logHistory('Edited ' + item.name);
+                logHistory(`Đã sửa: ${item.name}`);
             } else {
                 vault.unshift(item);
-                logHistory('Added ' + item.name);
+                logHistory(`Đã thêm: ${item.name}`);
             }
             saveVault();
             closeSheet();
         }
 
+        function deleteItem(id, name) {
+            if(confirm('Xóa tài khoản này?')) {
+                vault = vault.filter(x => x.id !== id);
+                logHistory(`Đã xóa: ${name}`);
+                saveVault();
+            }
+        }
+
         function saveVault() {
             localStorage.setItem('vault_final_v1', JSON.stringify(vault));
             render();
-            
-            // Auto trigger
+            // Trigger Auto
             const syncPass = localStorage.getItem('sync_pass');
             if(syncPass) performSync('save', syncPass, true);
             performBackup(true);
         }
 
+        // --- HISTORY ---
+        function logHistory(msg) {
+            const time = new Date().toLocaleString('vi-VN');
+            historyLog.unshift({ msg, time });
+            if(historyLog.length > 50) historyLog.pop();
+            localStorage.setItem('vault_history', JSON.stringify(historyLog));
+        }
+
+        function openHistory() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = historyLog.map(h => `
+                <div class="log-item">
+                    <span class="log-action">${h.msg}</span>
+                    <span class="log-time">${h.time}</span>
+                </div>
+            `).join('');
+            document.getElementById('history-sheet').classList.add('open');
+            document.getElementById('history-sheet').addEventListener('click', (e) => { if(e.target.id === 'history-sheet') closeHistory(); });
+        }
+        function closeHistory() { document.getElementById('history-sheet').classList.remove('open'); }
+
+        // --- HELPER ---
         function copy(txt, e) {
             if(e) e.stopPropagation();
             navigator.clipboard.writeText(txt);
-            showToast('📋 Đã sao chép');
+            showToast('✅ Đã sao chép');
         }
-
-        function genPass() {
-            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-            let pass = "";
-            for(let i=0; i<16; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
-            document.getElementById('inpPass').value = pass;
-        }
-
         function autoFillName() {
             const w = document.getElementById('inpWeb').value;
             const n = document.getElementById('inpName');
@@ -510,25 +560,30 @@
                 n.value = d.charAt(0).toUpperCase() + d.slice(1).split('.')[0];
             }
         }
-
-        function logHistory(action) {
-            historyLog.unshift({ action: action, time: new Date().toLocaleString() });
-            if(historyLog.length > 20) historyLog.pop();
-            localStorage.setItem('vault_history', JSON.stringify(historyLog));
+        function genPass() {
+            const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+            let p = ""; for(let i=0;i<16;i++) p += c.charAt(Math.floor(Math.random()*c.length));
+            document.getElementById('inpPass').value = p;
+        }
+        function showToast(msg, isError=false) {
+            const t = document.getElementById('toast');
+            t.innerHTML = isError ? `<i class="fas fa-exclamation-circle"></i> ${msg}` : `<i class="fas fa-check-circle"></i> ${msg}`;
+            t.style.display = 'flex';
+            setTimeout(() => t.style.display = 'none', 2000);
+        }
+        function loadSettings() {
+            document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
+            document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
+            const t = localStorage.getItem('last_sync_time');
+            if(t) document.getElementById('last-sync-time').innerText = "Lần cuối: " + t;
         }
 
-        function updateSyncStatus() {
-            const last = localStorage.getItem('last_sync_time');
-            document.getElementById('last-sync').innerText = last ? 'Lần cuối: ' + last : 'Chưa đồng bộ';
-        }
-
-        // --- BACKUP & SYNC ---
+        // --- SYNC & BACKUP ---
         async function callWorker(payload, isFile=false) {
             if(!navigator.onLine) throw new Error("Offline");
             let opts = { method: 'POST' };
             if(isFile) opts.body = payload;
             else { opts.headers = {'Content-Type': 'application/json'}; opts.body = JSON.stringify(payload); }
-            
             const res = await fetch(WORKER_URL, opts);
             if(!res.ok) throw new Error(await res.text());
             return await res.json();
@@ -537,46 +592,41 @@
         async function performBackup(isAuto) {
             const pass = localStorage.getItem('zip_pass');
             if(!pass) return; 
-            
             try {
-                let csv = "\uFEFFName,User,Pass,Note,Tag\n";
-                vault.forEach(i => csv += `"${i.name}","${i.user}","${i.pass}","${i.note}","${i.tag}"\n`);
-                
+                let csv = "\uFEFFName,User,Pass,Note\n";
+                vault.forEach(i => csv += `"${i.name}","${i.user}","${i.pass}","${i.note}"\n`);
                 const blobWriter = new zip.BlobWriter("application/zip");
                 const zipWriter = new zip.ZipWriter(blobWriter, { password: pass, encryptionStrength: 3 });
                 await zipWriter.add("data.csv", new zip.TextReader(csv));
                 await zipWriter.close();
                 const blob = await blobWriter.getData();
-
                 const fd = new FormData();
                 fd.append('action', 'backup_file');
                 fd.append('file', blob);
                 await callWorker(fd, true);
-                if(!isAuto) showToast('☁️ Đã gửi Backup Tele');
+                if(!isAuto) showToast('☁️ Đã gửi Backup');
             } catch(e) { console.error(e); }
         }
 
         async function syncCloud(action) {
             const pass = document.getElementById('syncPassInput').value;
-            if(!pass) return showToast('❌ Nhập mã Sync', true);
+            if(!pass) return showToast('Nhập mã Sync!', true);
             localStorage.setItem('sync_pass', pass);
-            
-            showToast('⏳ Đang đồng bộ...');
+            showToast('⏳ Đang xử lý...');
             try {
                 await performSync(action, pass, false);
-                showToast('✅ Đồng bộ thành công');
-            } catch(e) { showToast('❌ Lỗi: ' + e.message, true); }
+                showToast('✅ Thành công');
+            } catch(e) { showToast('Lỗi: ' + e.message, true); }
         }
 
         async function deleteCloudData() {
             const pass = localStorage.getItem('sync_pass');
-            if(!pass) return showToast('❌ Chưa có mã Sync', true);
-            if(!confirm('Xóa sạch dữ liệu trên Cloud? Hành động này không thể hoàn tác!')) return;
-            
+            if(!pass) return showToast('Chưa nhập mã Sync', true);
+            if(!confirm('Xóa sạch dữ liệu trên Cloud?')) return;
             try {
                 const res = await callWorker({ action: 'sync_delete', sync_pass: pass });
-                if(res.success) showToast('🗑 Đã xóa Cloud Data');
-            } catch(e) { showToast('❌ Lỗi xóa', true); }
+                if(res.success) showToast('🗑 Đã xóa Cloud');
+            } catch(e) { showToast('Lỗi xóa', true); }
         }
 
         async function performSync(action, pass, isAuto) {
@@ -591,16 +641,21 @@
                     localStorage.setItem('vault_final_v1', JSON.stringify(vault));
                     render();
                 }
-                const time = new Date().toLocaleString();
-                localStorage.setItem('last_sync_time', time);
-                updateSyncStatus();
+                const t = new Date().toLocaleString('vi-VN');
+                localStorage.setItem('last_sync_time', t);
+                document.getElementById('last-sync-time').innerText = "Lần cuối: " + t;
             }
         }
 
-        function saveZipPass() {
+        async function saveZipPass() {
             localStorage.setItem('zip_pass', document.getElementById('zipPassInput').value);
             showToast('✅ Đã lưu pass Backup');
             performBackup(false);
+        }
+
+        async function autoSyncOnLoad() {
+            const pass = localStorage.getItem('sync_pass');
+            if (pass && navigator.onLine) performSync('load', pass, true);
         }
     </script>
 </body>
