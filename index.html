@@ -18,11 +18,12 @@
         /* --- LAYOUT --- */
         #app-container { padding-bottom: 80px; min-height: 100vh; }
         
-        /* BLUR OVERLAY (Fix for Multitask) */
-        #blur-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); z-index: 99999; display: none; align-items: center; justify-content: center; }
+        /* AGGRESSIVE BLUR OVERLAY */
+        #blur-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 2147483647; display: none; align-items: center; justify-content: center; opacity: 1; pointer-events: none; }
+        #blur-overlay.active { display: flex; pointer-events: auto; }
         
-        /* HEADER (Search Only) */
-        .top-bar { position: sticky; top: 0; background: var(--bg); padding: 10px 15px; z-index: 100; transition: box-shadow 0.2s; }
+        /* HEADER */
+        .top-bar { position: sticky; top: 0; background: var(--bg); padding: 10px 15px; z-index: 100; }
         .search-wrapper { width: 100%; position: relative; max-width: 600px; margin: 0 auto; }
         .search-inp { width: 100%; padding: 12px 15px 12px 45px; border-radius: 25px; border: none; background: white; font-size: 15px; outline: none; box-sizing: border-box; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
@@ -32,19 +33,15 @@
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* HOME LIST */
-        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; transition: all 0.2s; }
-        .card:active { transform: scale(0.99); }
-        
+        /* CARDS */
+        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
         .card-brand { display: flex; align-items: center; gap: 12px; flex: 1; overflow: hidden; }
         .brand-icon { width: 40px; height: 40px; border-radius: 10px; object-fit: contain; background: #f8fafc; }
         .brand-info h4 { margin: 0; font-size: 16px; color: #0f172a; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* TAG PILL */
         .tag-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 6px; margin-top: 2px; text-transform: uppercase; }
         
-        /* ICONS */
         .card-actions { display: flex; gap: 12px; }
         .icon-btn { color: #94a3b8; font-size: 18px; padding: 5px; cursor: pointer; }
         .icon-btn.edit { color: var(--primary); }
@@ -53,25 +50,35 @@
         .field-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
         .field-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
         .field-val { font-family: 'Roboto Mono', monospace; font-size: 14px; color: #334155; font-weight: 500; }
-        
         .copy-pill { background: #f1f5f9; color: var(--primary); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border: 1px solid #e2e8f0; min-width: 50px; text-align: center; }
         
         .btn-visit { display: block; box-sizing: border-box; width: 100%; text-align: center; padding: 12px; background: #f8fafc; color: var(--primary); text-decoration: none; font-weight: 600; border-radius: 10px; font-size: 14px; margin-top: 12px; border: 1px solid #e2e8f0; transition: 0.1s; }
         .btn-visit:active { background: #eff6ff; }
-
         .note-box { background: #fff7ed; color: #c2410c; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 10px; border: 1px solid #ffedd5; display: flex; gap: 8px; align-items: flex-start; }
 
-        /* SETTINGS VIEW */
-        .settings-section { background: white; border-radius: 16px; padding: 0 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
-        .st-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; border-bottom: 1px solid #f1f5f9; }
+        /* SETTINGS SECTION CARDS */
+        .settings-section { background: white; border-radius: 16px; padding: 0 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; overflow: hidden; }
+        .st-header { font-size: 13px; font-weight: 700; color: #94a3b8; text-transform: uppercase; padding: 15px 0 5px 0; letter-spacing: 0.5px; }
+        .st-item { display: flex; align-items: center; justify-content: space-between; padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
         .st-item:last-child { border-bottom: none; }
         .st-left { flex: 1; }
-        .st-label { font-size: 15px; font-weight: 500; display: flex; align-items: center; gap: 12px; color: #1e293b; }
-        .st-icon { width: 32px; height: 32px; background: #f1f5f9; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 15px; }
-        .st-sub { font-size: 12px; color: #64748b; margin-top: 2px; }
+        .st-label { font-size: 15px; font-weight: 500; color: #1e293b; }
+        .st-sub { font-size: 12px; color: #64748b; margin-top: 4px; }
         .st-action { font-weight: 600; font-size: 14px; color: var(--primary); cursor: pointer; }
 
-        /* BOTTOM NAV (Compact) */
+        /* SLIDER & INPUTS */
+        .slider-container { width: 100%; padding: 10px 0; }
+        .range-slider { -webkit-appearance: none; width: 100%; height: 6px; border-radius: 5px; background: #e2e8f0; outline: none; }
+        .range-slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: 0 2px 6px rgba(37,99,235,0.4); }
+        
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider-toggle { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; }
+        .slider-toggle:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider-toggle { background-color: var(--primary); }
+        input:checked + .slider-toggle:before { transform: translateX(20px); }
+
+        /* BOTTOM NAV */
         .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: white; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 -5px 20px rgba(0,0,0,0.05); border-top-left-radius: 20px; border-top-right-radius: 20px; z-index: 500; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 60px; height: 100%; cursor: pointer; color: #94a3b8; }
         .nav-item i { font-size: 20px; transition: 0.2s; }
@@ -93,7 +100,6 @@
         .inp:focus { border-color: var(--primary); background: white; }
         .btn-full { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; margin-top: 10px; cursor: pointer; }
         
-        /* TOAST (No Icon) */
         #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 30px; font-size: 13px; font-weight: 600; display: none; z-index: 10000; box-shadow: 0 5px 15px rgba(0,0,0,0.2); text-align: center; }
         
         /* LOG HISTORY */
@@ -128,29 +134,75 @@
             <h2 style="margin: 10px 0 20px 0; font-size:24px">Cài đặt</h2>
             
             <div class="settings-section">
+                <div class="st-header">Đồng bộ Cloud</div>
                 <div class="st-item">
                     <div class="st-left">
-                        <div class="st-label"><div class="st-icon"><i class="fas fa-cloud"></i></div> Đồng bộ Cloud</div>
-                        <div class="st-sub" id="last-sync-time">Lần cuối: Chưa đồng bộ</div>
+                        <div class="st-label">Trạng thái</div>
+                        <div class="st-sub" id="last-sync-time">Chưa đồng bộ</div>
                     </div>
                 </div>
                 <div class="st-item" style="display:block; padding-top:5px">
                     <p style="font-size:12px; color:#64748b; margin-bottom:8px">Mã Sync:</p>
                     <div style="display:flex; gap:10px">
-                        <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã sync..." style="padding:10px; font-size:14px">
-                        <button class="st-action" style="background:#f1f5f9; border:none; padding:0 15px; border-radius:10px" onclick="syncCloud('load')">TẢI VỀ</button>
+                        <input type="password" id="syncPassInput" class="inp" placeholder="Nhập mã..." style="padding:10px; font-size:14px">
+                        <button class="st-action" style="background:#f1f5f9; border:none; padding:0 15px; border-radius:10px" onclick="syncCloud('load')">TẢI</button>
                     </div>
                 </div>
                 <div class="st-item" onclick="deleteCloudData()">
-                    <div class="st-label" style="color:#ef4444"><div class="st-icon" style="background:#fef2f2; color:#ef4444"><i class="fas fa-trash"></i></div> Xóa dữ liệu Cloud</div>
+                    <div class="st-label" style="color:#ef4444">Xóa dữ liệu Cloud</div>
                 </div>
             </div>
 
             <div class="settings-section">
+                <div class="st-header">Cấu hình Gen Pass</div>
+                
+                <div class="st-item">
+                    <div class="st-left">
+                        <div class="st-label">Chế độ "Dễ nhớ"</div>
+                        <div class="st-sub">VD: Flower2025@, Hung#99...</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="cfg-easy" onchange="saveGenConfig()">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+
                 <div class="st-item" style="display:block">
-                    <div class="st-label" style="margin-bottom:8px"><div class="st-icon"><i class="fas fa-file-archive"></i></div> Mật khẩu Backup ZIP</div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px">
+                        <div class="st-label">Độ dài: <span id="len-display" style="color:var(--primary); font-weight:700">12</span></div>
+                    </div>
+                    <input type="range" min="6" max="20" value="12" class="range-slider" id="cfg-len" oninput="saveGenConfig()">
+                </div>
+
+                <div class="st-item">
+                    <div class="st-left">
+                        <div class="st-label">Ký tự đặc biệt</div>
+                        <div class="st-sub">Thêm !@#$ vào mật khẩu</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="cfg-spec" checked onchange="saveGenConfig()">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+
+                <div class="st-item">
+                    <div class="st-left">
+                        <div class="st-label">Viết hoa chữ cái đầu</div>
+                        <div class="st-sub">Luôn viết hoa ký tự đầu tiên</div>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="cfg-cap" checked onchange="saveGenConfig()">
+                        <span class="slider-toggle"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <div class="st-header">Sao lưu File ZIP</div>
+                <div class="st-item" style="display:block">
+                    <p style="font-size:12px; color:#64748b; margin-bottom:8px">Mật khẩu giải nén:</p>
                     <div style="display:flex; gap:10px">
-                        <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass giải nén..." style="padding:10px; font-size:14px">
+                        <input type="password" id="zipPassInput" class="inp" placeholder="Nhập pass..." style="padding:10px; font-size:14px">
                         <button class="st-action" style="background:#334155; color:white; border:none; padding:8px 15px; border-radius:10px" onclick="saveZipPass()">LƯU</button>
                     </div>
                 </div>
@@ -158,7 +210,7 @@
 
             <div class="settings-section">
                 <div class="st-item" onclick="openHistory()">
-                    <div class="st-label"><div class="st-icon"><i class="fas fa-history"></i></div> Lịch sử thay đổi</div>
+                    <div class="st-label"><i class="fas fa-history" style="color:#94a3b8; margin-right:8px"></i> Lịch sử thay đổi</div>
                     <div class="st-action">Xem log</div>
                 </div>
             </div>
@@ -216,7 +268,7 @@
 
     <div class="bottom-sheet" id="history-sheet">
         <div class="sheet-content">
-            <h3 style="margin:0 0 15px 0">Nhật ký hoạt động</h3>
+            <h3 style="margin:0 0 15px 0">Nhật ký (50 mục gần nhất)</h3>
             <div id="history-list" style="max-height:60vh; overflow-y:auto"></div>
             <button class="btn-full" style="background:#f1f5f9; color:#334155; margin-top:20px" onclick="closeHistory()">Đóng</button>
         </div>
@@ -228,6 +280,9 @@
         const WORKER_URL = "https://access-with-me.doicucden.workers.dev/"; 
         let vault = JSON.parse(localStorage.getItem('vault_final_v1')) || [];
         let historyLog = JSON.parse(localStorage.getItem('vault_history_v2')) || [];
+        
+        // GEN PASS CONFIG DEFAULTS
+        let genConfig = JSON.parse(localStorage.getItem('gen_config')) || { len: 12, spec: true, cap: true, easy: false };
 
         // --- INIT ---
         window.onload = () => {
@@ -243,16 +298,17 @@
             autoSyncOnLoad();
         };
 
-        // --- BLUR MULTITASKING ---
-        document.addEventListener("visibilitychange", () => {
+        // --- AGGRESSIVE BLUR ---
+        function toggleBlur(force) {
             const overlay = document.getElementById('blur-overlay');
-            if (document.visibilityState === 'hidden') {
-                overlay.style.display = 'flex';
-            } else {
-                overlay.style.display = 'none';
-                autoSyncOnLoad();
-            }
+            if(force) overlay.classList.add('active');
+            else overlay.classList.remove('active');
+        }
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === 'hidden') toggleBlur(true);
+            else { toggleBlur(false); autoSyncOnLoad(); }
         });
+        window.addEventListener("pagehide", () => toggleBlur(true));
 
         // --- NAVIGATION ---
         window.history.pushState(null, null, window.location.href);
@@ -277,36 +333,33 @@
             }
         }
 
-        // --- UI RENDER & AUTO TAG ---
+        // --- SUPER AUTO TAG ---
         function getFavicon(url) {
             if (!url) return 'https://cdn-icons-png.flaticon.com/512/1000/1000997.png';
             let domain = url.replace('https://', '').replace('http://', '').split('/')[0];
             return `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
         }
 
-        // AUTO TAGGING LOGIC (Improved)
         function getAutoTag(url) {
             if(!url) return null;
             const u = url.toLowerCase();
             
-            const tags = {
-                'MẠNG XÃ HỘI': ['facebook', 'instagram', 'tiktok', 'twitter', 'x.com', 'linkedin', 'pinterest', 'reddit', 'tumblr', 'threads'],
-                'TÀI CHÍNH/BANK': ['bank', 'momo', 'zalo', 'paypal', 'vietcombank', 'techcombank', 'bidv', 'agribank', 'vpbank', 'mb', 'tpb', 'wallet', 'visa'],
-                'GAME': ['garena', 'riot', 'steam', 'roblox', 'genshin', 'lienquan', 'zing', 'pubg', 'epicgames', 'blizzard', 'playstation', 'xbox'],
-                'MUA SẮM': ['shopee', 'lazada', 'tiki', 'amazon', 'ebay', 'taobao', 'alibaba', 'shein'],
-                'CÔNG VIỆC': ['google', 'office', 'microsoft', 'slack', 'zoom', 'teams', 'trello', 'notion', 'canva'],
-                'LẬP TRÌNH': ['github', 'gitlab', 'stackoverflow', 'aws', 'cloudflare', 'vercel', 'firebase', 'digitalocean'],
-                'GIẢI TRÍ': ['netflix', 'spotify', 'youtube', 'vtv', 'galaxy', 'cgv']
+            const definitions = {
+                'SOCIAL': { c:'#0ea5e9', b:'#e0f2fe', k:['facebook','fb.com','instagram','tiktok','twitter','x.com','linkedin','pinterest','reddit','tumblr','threads','snapchat','discord','whatsapp','telegram','zalo','messenger'] },
+                'BANK/FIN': { c:'#16a34a', b:'#dcfce7', k:['bank','momo','zalopay','viettelpay','paypal','vcb','vietcombank','techcombank','bidv','agribank','vpbank','mb','tpb','acb','sacombank','wallet','coin','binance','remitano','vndirect','ssi'] },
+                'GAME': { c:'#d946ef', b:'#fae8ff', k:['steam','garena','riot','epic','xbox','playstation','nintendo','roblox','minecraft','pubg','lienquan','genshin','hoyoverse','zing','vng','blizzard','ubisoft'] },
+                'SHOPPING': { c:'#f97316', b:'#ffedd5', k:['shopee','lazada','tiki','amazon','ebay','taobao','alibaba','shein','walmart','etsy','sendo','grab','gojek','be','food'] },
+                'WORK/OFFICE': { c:'#6366f1', b:'#e0e7ff', k:['google','gmail','drive','microsoft','office','outlook','slack','zoom','teams','trello','notion','asana','jira','canva','adobe','dropbox','doc'] },
+                'DEV/TECH': { c:'#0f172a', b:'#f1f5f9', k:['github','gitlab','vercel','netlify','heroku','aws','azure','cloudflare','digitalocean','docker','python','stackoverflow','npm','host'] },
+                'MEDIA': { c:'#ef4444', b:'#fee2e2', k:['youtube','netflix','spotify','soundcloud','twitch','vtv','vieon','galaxy','cgv','fptplay','hbo','disney','appletv','mp3'] },
+                'EDU': { c:'#8b5cf6', b:'#ede9fe', k:['edu','udemy','coursera','duolingo','quizlet','edx','hcmue','ueh','rmit','fpt','school','uni'] },
+                'GOV': { c:'#78350f', b:'#fef3c7', k:['gov','dichvucong','vneid','gdt','baohiem','thue'] },
+                'TRAVEL': { c:'#0d9488', b:'#ccfbf1', k:['booking','agoda','airbnb','traveloka','tripadvisor','hotel','flight','vietjet','bamboo'] }
             };
 
-            for (const [category, keywords] of Object.entries(tags)) {
-                if (keywords.some(k => u.includes(k))) {
-                    let color = '#64748b'; let bg = '#f1f5f9';
-                    if(category === 'MẠNG XÃ HỘI') { color='#0ea5e9'; bg='#e0f2fe'; }
-                    if(category === 'TÀI CHÍNH/BANK') { color='#16a34a'; bg='#dcfce7'; }
-                    if(category === 'GAME') { color='#d946ef'; bg='#fae8ff'; }
-                    if(category === 'MUA SẮM') { color='#f97316'; bg='#ffedd5'; }
-                    return { t: category, c: color, b: bg };
+            for (const [tag, def] of Object.entries(definitions)) {
+                if (def.k.some(key => u.includes(key))) {
+                    return { t: tag, c: def.c, b: def.b };
                 }
             }
             return null;
@@ -379,7 +432,76 @@
             }
         }
 
-        // --- SHEET & DATA ---
+        // --- PASSWORD GEN LOGIC ---
+        function saveGenConfig() {
+            genConfig.len = parseInt(document.getElementById('cfg-len').value);
+            genConfig.spec = document.getElementById('cfg-spec').checked;
+            genConfig.cap = document.getElementById('cfg-cap').checked;
+            genConfig.easy = document.getElementById('cfg-easy').checked;
+            
+            document.getElementById('len-display').innerText = genConfig.len;
+            localStorage.setItem('gen_config', JSON.stringify(genConfig));
+        }
+
+        function genPass() {
+            let password = "";
+            const { len, spec, cap, easy } = genConfig;
+
+            if (easy) {
+                // EASY MODE: [Word][Number][Special]
+                const words = ["Summer","Winter","Spring","Autumn","Flower","Coffee","Music","Happy","Smile","Dragon","Tiger","Lion","Peace","Hope","Dream","Sky","Blue","Moon","Star","Rose","Lily","Lotus","Mango","Apple","Grape","Binh","Hung","Phuc","Dung","Thao","Linh","Mai","Lan","Huong","Giang","Ngoc","Tuan","Son"];
+                const specials = "!@#$%^&*";
+                
+                let word = words[Math.floor(Math.random() * words.length)];
+                if(!cap) word = word.toLowerCase(); // Respect Capitalize toggle
+                else word = word.charAt(0).toUpperCase() + word.slice(1);
+                
+                let suffix = "";
+                if(spec) suffix += specials.charAt(Math.floor(Math.random() * specials.length));
+                
+                // Calculate remaining length for numbers
+                let remain = len - word.length - suffix.length;
+                if(remain < 1) remain = 2; // Min 2 digits
+                
+                let num = "";
+                for(let i=0; i<remain; i++) num += Math.floor(Math.random() * 10);
+                
+                password = word + num + suffix;
+
+            } else {
+                // RANDOM MODE
+                let chars = "abcdefghijklmnopqrstuvwxyz";
+                let upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                let num = "0123456789";
+                let sp = "!@#$%^&*";
+
+                let pool = chars + num;
+                if(cap) pool += upper;
+                if(spec) pool += sp;
+
+                // Ensure at least one of each if selected
+                if(cap) password += upper.charAt(Math.floor(Math.random() * upper.length));
+                if(spec) password += sp.charAt(Math.floor(Math.random() * sp.length));
+                password += num.charAt(Math.floor(Math.random() * num.length));
+
+                while(password.length < len) {
+                    password += pool.charAt(Math.floor(Math.random() * pool.length));
+                }
+                
+                // Shuffle
+                password = password.split('').sort(function(){return 0.5-Math.random()}).join('');
+                if(cap && !/[A-Z]/.test(password[0])) {
+                     // Force first char Cap if strict? No, just random is fine. 
+                     // Requirement: "1 ngăn là viết hoa chữ cái đầu".
+                     // If user wants First Char Capitalized strictly:
+                     if(cap) password = password.charAt(0).toUpperCase() + password.slice(1);
+                }
+            }
+            
+            document.getElementById('inpPass').value = password;
+        }
+
+        // --- DATA HANDLERS ---
         function openSheet(id=null) {
             document.getElementById('sheet').classList.add('open');
             document.getElementById('sheet').addEventListener('click', (e) => { if(e.target.id === 'sheet') closeSheet(); });
@@ -416,19 +538,11 @@
             if(id) {
                 const idx = vault.findIndex(x => x.id == id);
                 const oldItem = vault[idx];
-                
-                // Diff check for history
                 let changes = [];
                 if(oldItem.user !== item.user) changes.push(`User đổi thành: ${item.user}`);
                 if(oldItem.pass !== item.pass) changes.push(`Pass đổi thành: *****`);
-                if(oldItem.note !== item.note) changes.push(`Note đã thay đổi`);
-                
-                if(changes.length > 0) {
-                    logHistory(item.name, changes.join(', '));
-                } else {
-                    logHistory(item.name, "Cập nhật thông tin (không đổi User/Pass)");
-                }
-                
+                if(changes.length > 0) logHistory(item.name, changes.join(', '));
+                else logHistory(item.name, "Cập nhật thông tin");
                 vault[idx] = item;
             } else {
                 vault.unshift(item);
@@ -448,16 +562,17 @@
         function saveVault() {
             localStorage.setItem('vault_final_v1', JSON.stringify(vault));
             render();
-            // Trigger Auto Sync
             const syncPass = localStorage.getItem('sync_pass');
             if(syncPass) performSync('save', syncPass, true);
         }
 
-        // --- HISTORY LOGIC (Updated format) ---
+        // --- HISTORY (Max 50) ---
         function logHistory(name, detail) {
             const time = new Date().toLocaleString('vi-VN');
             historyLog.unshift({ name, detail, time });
-            if(historyLog.length > 50) historyLog.pop();
+            // FORCE LIMIT 50
+            if(historyLog.length > 50) historyLog = historyLog.slice(0, 50);
+            
             localStorage.setItem('vault_history_v2', JSON.stringify(historyLog));
         }
 
@@ -489,20 +604,23 @@
                 n.value = d.charAt(0).toUpperCase() + d.slice(1).split('.')[0];
             }
         }
-        function genPass() {
-            const c = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
-            let p = ""; for(let i=0;i<16;i++) p += c.charAt(Math.floor(Math.random()*c.length));
-            document.getElementById('inpPass').value = p;
-        }
         function showToast(msg) {
             const t = document.getElementById('toast');
-            t.innerText = msg; // No HTML/Icon allowed
+            t.innerText = msg; 
             t.style.display = 'block';
             setTimeout(() => t.style.display = 'none', 2000);
         }
         function loadSettings() {
             document.getElementById('zipPassInput').value = localStorage.getItem('zip_pass') || '';
             document.getElementById('syncPassInput').value = localStorage.getItem('sync_pass') || '';
+            
+            // Load Gen Config UI
+            document.getElementById('cfg-len').value = genConfig.len;
+            document.getElementById('len-display').innerText = genConfig.len;
+            document.getElementById('cfg-spec').checked = genConfig.spec;
+            document.getElementById('cfg-cap').checked = genConfig.cap;
+            document.getElementById('cfg-easy').checked = genConfig.easy;
+
             const t = localStorage.getItem('last_sync_time');
             if(t) document.getElementById('last-sync-time').innerText = "Lần cuối: " + t;
         }
@@ -542,7 +660,7 @@
             localStorage.setItem('sync_pass', pass);
             showToast('Đang xử lý...');
             try {
-                // Wrap vault and history into one object
+                // Ensure we only send the limited history
                 let payloadData = null;
                 if(action === 'save') {
                     payloadData = { vault: vault, history: historyLog };
@@ -556,7 +674,6 @@
 
                 if(res.success) {
                     if(action === 'load' && res.data) {
-                        // Handle legacy array format or new object format
                         if(Array.isArray(res.data)) {
                             vault = res.data;
                         } else {
@@ -610,7 +727,6 @@
         async function deleteCloudData() {
             const pass = localStorage.getItem('sync_pass');
             if(!pass) return showToast('Chưa nhập mã Sync');
-            // NO CONFIRM - Just Delete
             try {
                 const res = await callWorker({ action: 'sync_delete', sync_pass: pass });
                 if(res.success) showToast('Đã xóa Cloud');
@@ -624,3 +740,4 @@
     </script>
 </body>
 </html>
+
